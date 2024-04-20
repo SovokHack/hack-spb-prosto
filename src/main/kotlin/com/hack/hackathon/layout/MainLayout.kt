@@ -1,12 +1,17 @@
 package com.hack.hackathon.layout
 
 import com.hack.hackathon.JavaView
+import com.hack.hackathon.security.SecurityService
 import com.hack.hackathon.vaadin.LocaleChanger
+import com.hack.hackathon.view.LoginPage
 import com.hack.hackathon.view.MainView
+import com.hack.hackathon.view.RegisterPage
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.applayout.AppLayout
+import com.vaadin.flow.component.button.Button
+import com.vaadin.flow.component.button.ButtonVariant
 import com.vaadin.flow.component.checkbox.Checkbox
 import com.vaadin.flow.component.html.H1
 import com.vaadin.flow.component.menubar.MenuBar
@@ -17,11 +22,16 @@ import com.vaadin.flow.component.tabs.Tabs
 import com.vaadin.flow.component.tabs.TabsVariant
 import com.vaadin.flow.router.*
 import com.vaadin.flow.server.VaadinSession
+import com.vaadin.flow.server.auth.AnonymousAllowed
 import com.vaadin.flow.theme.lumo.Lumo
+import jakarta.annotation.security.PermitAll
 
 
 @Route("")
-class MainLayout : AppLayout(), BeforeEnterObserver {
+@AnonymousAllowed
+class MainLayout(
+    private val securityService: SecurityService
+) : AppLayout(), BeforeEnterObserver {
     init {
         val title = H1(getTranslation("app.title"))
         title.style
@@ -53,9 +63,23 @@ class MainLayout : AppLayout(), BeforeEnterObserver {
         }
         val localeChanger: LocaleChanger = LocaleChanger()
         val settings = menuBar.addItem(getTranslation("app.header-box.title"))
+        val logoutBtn = Button("logout") {
+            securityService.logout()
+        }
+        val loginBtn = Button("login") {
+            UI.getCurrent().navigate(LoginPage::class.java)
+        }
+        logoutBtn.addThemeVariants(ButtonVariant.LUMO_ERROR)
+        val registerBtn = Button("register") {
+            UI.getCurrent().navigate(RegisterPage::class.java)
+        }
         val subMenu = settings.subMenu
         subMenu.addItem(themeToggle)
         subMenu.addItem(localeChanger)
+        securityService.authenticatedUser?.let { subMenu.addItem(logoutBtn) } ?: let {
+            subMenu.addItem(loginBtn)
+            subMenu.addItem(registerBtn)
+        }
         settings.addThemeNames()
         menuBar.addThemeVariants(MenuBarVariant.LUMO_END_ALIGNED)
         menuBar.style.set("margin", "0 0 0 auto")["padding-right"] = "var(--lumo-space-s)"
