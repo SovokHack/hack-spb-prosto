@@ -2,6 +2,8 @@ package com.hack.hackathon.view;
 
 import com.hack.hackathon.entity.User;
 
+import com.hack.hackathon.layout.MainLayout;
+import com.hack.hackathon.security.Role;
 import com.hack.hackathon.security.SecurityService;
 import com.hack.hackathon.security.UserService;
 import com.hack.hackathon.service.GroupService;
@@ -13,11 +15,12 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
+//import com.vaadin.flow.server.auth;
+import jakarta.annotation.security.PermitAll;;
 
 
-@AnonymousAllowed
-@Route("user")
+@PermitAll
+@Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout {
     private final UserService userService;
     private final GroupService groupService;
@@ -30,9 +33,10 @@ public class UserView extends VerticalLayout {
         this.securityService = securityService;
 
         BeanValidationBinder<User> binder = new BeanValidationBinder<>(User.class);
+        binder.setBean(securityService.getAuthenticatedUser());
 
-        PasswordField password = new PasswordField("Пароль");
         TextField username = new TextField("Имя пользователя");
+        username.setReadOnly(true);
         TextField homeAddress = new TextField("Домашний адрес");
 
         ComboBox<String> group = new ComboBox<>("Группа");
@@ -40,15 +44,17 @@ public class UserView extends VerticalLayout {
 
 
 
+
+
         binder.bind(username, "username");
-        binder.bind(password, "password");
+
         binder.bind(homeAddress, "homeAddress");
-        binder.bind(group, "group");
+        binder.withValidator(user -> groupService.groupExists(user.getGroup()),"Такой группы нет!").bind(group, "group");
 
 
 
         Button confirmButton = new Button("Сохранить изменения");
-        password.setWidth("600px");
+
         username.setWidth("600px");
         homeAddress.setWidth("600px");
         group.setWidth("600px");
@@ -73,7 +79,6 @@ public class UserView extends VerticalLayout {
         add(
                 username,
                 homeAddress,
-                password,
                 group,
                 confirmButton
         );
