@@ -21,8 +21,8 @@ public class Event {
     private String name;
     private String description;
     private EventType type;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private Float x;
     private Float y;
     private String externalId;

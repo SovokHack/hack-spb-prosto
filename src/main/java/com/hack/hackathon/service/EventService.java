@@ -1,6 +1,7 @@
 package com.hack.hackathon.service;
 
 import com.hack.hackathon.entity.Event;
+import com.hack.hackathon.enumeration.EventType;
 import com.hack.hackathon.exception.Exceptions;
 import com.hack.hackathon.exception.NotFoundException;
 import com.hack.hackathon.repository.EventRepository;
@@ -13,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -73,5 +76,20 @@ public class EventService {
         eventRepository.deleteById(id);
 
         log.info("Event with ID {} is deleted", id);
+    }
+
+    @Transactional
+    public boolean exists(LocalDateTime startTime, LocalDateTime endTime, Set<EventType> eventTypes) {
+        return eventRepository.existsEventByStartTimeAfterAndEndTimeBeforeAndTypeIn(startTime, endTime, eventTypes);
+    }
+
+    @Transactional
+    public Event save(Event event) {
+        return eventRepository.save(event);
+    }
+
+    @Transactional
+    public List<Event> findAll(LocalDateTime startTime, LocalDateTime endTime, Set<EventType> eventTypes) {
+        return eventRepository.findAllByStartTimeAfterAndEndTimeBeforeAndTypeIn(startTime, endTime, eventTypes);
     }
 }
