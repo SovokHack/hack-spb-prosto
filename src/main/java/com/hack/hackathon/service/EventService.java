@@ -20,7 +20,7 @@ import java.util.Optional;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
-
+    private final EventExternalService eventExternalService;
     private final ModelMapper modelMapper;
 
     public Event getById(Long id)
@@ -72,5 +72,9 @@ public class EventService {
         eventRepository.deleteById(id);
 
         log.info("Event with ID {} is deleted", id);
+    }
+
+    public Event retrieveSchedule() {
+
     }
 }
