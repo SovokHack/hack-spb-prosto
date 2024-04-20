@@ -2,7 +2,6 @@ package com.hack.hackathon.view;
 
 import com.hack.hackathon.entity.Coordinate;
 import com.hack.hackathon.entity.User;
-
 import com.hack.hackathon.layout.MainLayout;
 import com.hack.hackathon.security.SecurityService;
 import com.hack.hackathon.security.UserService;
@@ -15,8 +14,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
+
+import java.util.Collections;
+import java.util.stream.Stream;
+
 //import com.vaadin.flow.server.auth;
-import jakarta.annotation.security.PermitAll;;import java.util.Collections;
+;
 
 
 @PermitAll
@@ -51,7 +55,14 @@ public class UserView extends VerticalLayout {
                 String filter = q.getFilter().get(); // Get the filter text
                 return coordinateService.query(filter).stream(); // Get matching coordinates
             } else {
-                return Collections.<Coordinate>emptyList().stream(); // Return an empty list
+                return Stream.<Coordinate>empty(); // Return an empty list
+            }
+        });
+        homeAddress.setItemLabelGenerator(it -> {
+            if (it != null) {
+                return it.getName();
+            } else {
+                return null;
             }
         });
 
