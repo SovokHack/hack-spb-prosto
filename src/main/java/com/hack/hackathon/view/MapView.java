@@ -53,13 +53,13 @@ public class MapView
         setupGrid();
         setupDragAndDrop();
 
-        eventList.forEach(event -> map.addMarker(event.getCoordinate().x, event.getCoordinate().y).withPopup(
+        eventList.forEach(event -> map.addMarker(event.getX(), event.getY()).withPopup(
                 "<h3>" + event.getName()  + "</h3>" ));
 
     }
 
     private void setupEventData() {
-
+        eventList.addAll(List.of(Event.builder().id(1L).x(0F).y(0F).name("name").description("description").endTime(LocalTime.now()).startTime(LocalTime.now()).type(EventType.REMOTE).build()));
     }
 
     private void setupLayout() {
