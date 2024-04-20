@@ -10,4 +10,8 @@ public class GroupService {
     public List<String> getGroups() { //TODO from API
         return List.of("1375", "1376", "1378", "1379");
     }
+
+    public boolean groupExists(String group) {
+        return true;
+    }
 }
