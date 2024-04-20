@@ -14,6 +14,7 @@ server:
 
 vaadin:
   launch-browser: true
+
 # SQL statements and parameters
 logging:
   level:
@@ -24,3 +25,4 @@ logging:
             bind: trace
         type: trace
         stat: debug
+

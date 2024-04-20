@@ -34,7 +34,7 @@ public class EventExternalService {
     private final RestUtils restUtils;
     private final EventService eventService;
 
-    public List<ExternalEventDto> fetchEvents(Long page, Long size, LocalDateTime periodAfter, LocalDateTime periodBefore) throws IOException {
+    public List<ExternalEventDto> fetchEvents(Long page, Long size, LocalDateTime periodAfter, LocalDateTime periodBefore) {
         ResponseEntity<ExternalDto> responseEntity = restTemplate.exchange(peterburgConfig.getAllEventsUrl(),  HttpMethod.GET, new HttpEntity<>(new ExternalDto()), ExternalDto.class, Map.of(
                 "page", page,
                 "size", size,
@@ -55,7 +55,7 @@ public class EventExternalService {
     public List<Event> retrieveSchedule(String group, LocalDateTime now) {
         LocalDateTime startTimeOrig = LocalDateTime.of(now.toLocalDate(), LocalTime.of(0, 0));
         LocalDateTime endTimeOrig = LocalDateTime.of(now.toLocalDate(), LocalTime.of(23, 59));
-        if (eventService.exists(startTimeOrig, endTimeOrig , Set.of(EventType.REMOTE, EventType.NOT_REMOTE))) {
+        if (eventService.exists(startTimeOrig, endTimeOrig , Set.of(EventType.OFFLINE, EventType.ONLINE))) {
             ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getScheduleUrl(), String.class, Map.of("group", group));
             Optional<JSONArray> lessons = Optional.ofNullable(new JSONArray(response.getBody())
                     .getJSONObject(0)
@@ -73,7 +73,7 @@ public class EventExternalService {
                         var event = Event.builder().name(lesson.optString("name"))
                                 .startTime(startTime)
                                 .endTime(endTime)
-                                .type(lesson.getBoolean("is_distant") ? EventType.REMOTE : EventType.NOT_REMOTE).build();
+                                .type(lesson.getBoolean("is_distant") ? EventType.ONLINE : EventType.OFFLINE).build();
                         eventService.save(event);
                     }
 
@@ -81,7 +81,7 @@ public class EventExternalService {
             });
 
         }
-        return eventService.findAll(startTimeOrig, endTimeOrig, Set.of(EventType.REMOTE, EventType.NOT_REMOTE));
+        return eventService.findAll(startTimeOrig, endTimeOrig, Set.of(EventType.ONLINE, EventType.OFFLINE));
     }
 
 }

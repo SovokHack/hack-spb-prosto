@@ -6,8 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum EventType {
-    REMOTE("REMOTE"),
-    NOT_REMOTE("NOT_REMOTE"),
-    EXTERNAL("EXTERNAL");
+    OFFLINE("offline"),
+    ONLINE("online"),
+    EXTERNAL("external");
     private final String type;
 }

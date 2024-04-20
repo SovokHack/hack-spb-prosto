@@ -1,19 +1,23 @@
 package com.hack.hackathon.view;
 
 
-import com.hack.hackathon.entity.Coordinate;
 import com.hack.hackathon.entity.Event;
 import com.hack.hackathon.enumeration.EventType;
 import com.hack.hackathon.layout.MainLayout;
-import com.hack.hackathon.service.EventService;
+import com.hack.hackathon.service.EventExternalService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
+import com.vaadin.flow.component.map.Map;
+import com.vaadin.flow.component.map.configuration.Coordinate;
+import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
+import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -21,46 +25,75 @@ import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.Point;
-import org.springframework.data.domain.Pageable;
-import org.vaadin.addons.maplibre.MapLibre;
-import org.vaadin.addons.maplibre.Marker;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @AnonymousAllowed
 @PageTitle("Map")
 @Route(value = "map", layout = MainLayout.class)
-@RequiredArgsConstructor
 public class MapView
         extends HorizontalLayout {
+    private final EventExternalService eventExternalService;
+
     List<Event> eventList = new ArrayList<>();
     Grid<Event> grid = new Grid<>(Event.class, false);
-    MapLibre map = Components.getMap();
+    Map map = new Map();
     Binder<Event> binder = new Binder<>(Event.class);
     Editor<Event> editor = grid.getEditor();
     Event draggedItem;
+    DatePicker datePicker;
+    Checkbox wifiCheckbox = new Checkbox("Show WiFi spots", event -> {});
 
-    {
-      //  setupEventData();
+    Event tmp = Event.builder().id(1L).coordinate(new com.hack.hackathon.entity.Coordinate(0F, 0F, "nasdass")).name(
+            "name").description("description").endTime(LocalDateTime.now()).startTime(LocalDateTime.now()).type(
+            EventType.OFFLINE).build();
+
+    public MapView(EventExternalService eventExternalService) {
+        this.eventExternalService = eventExternalService;
+
+        setupEventData();
         setupLayout();
         setupGrid();
         setupDragAndDrop();
 
-        eventList.forEach(event -> map.addMarker(event.getCoordinate().getX(), event.getCoordinate().getY()).withPopup(
-                "<h3>" + event.getName()  + "</h3>" ));
+        datePicker = new DatePicker(event -> {
+            grid.setItems(eventExternalService.fetchEvents(0L, 100L, event.getValue().atStartOfDay(),
+                                                           event.getValue().atStartOfDay())
+                                              .stream()
+                                              .map(o -> Event.builder()
+                                                             .externalId(o.getId().toString())
+                                                             .name(o.getTitle())
+                                                             .type(EventType.valueOf(o.getEventFormat().getId()))
+                                                             .startTime(o.getPeriods().get(0).getLower())
+                                                             .endTime(o.getPeriods().get(0).getUpper())
+                                                             .coordinate(new com.hack.hackathon.entity.Coordinate(
+                                                                     o.getCoordinates().get(0).floatValue(),
+                                                                     o.getCoordinates().get(1).floatValue(),
+                                                                     o.getOrganizerAddress()))
+                                                             .build())
+                                              .toList());
+        });
+
+        Coordinate germanOfficeCoordinates = new Coordinate(13.45489, 52.51390);
+
+        StreamResource streamResource = new StreamResource("wifi.svg",
+                                                           () -> getClass().getResourceAsStream("/images/wifi.svg"));
+        Icon.Options usFlagIconOptions = new Icon.Options();
+        usFlagIconOptions.setImg(streamResource);
+        Icon usFlagIcon = new Icon(usFlagIconOptions);
+        MarkerFeature usOffice = new MarkerFeature(germanOfficeCoordinates, usFlagIcon);
+
+        map.getFeatureLayer().addFeature(usOffice);
 
     }
 
-//    private void setupEventData() {
-//        eventList.addAll(List.of(Event.builder().id(1L).coordinate(new Coordinate(4F, 4F, "trvr")).name("name").description("description").endTime(LocalTime.now()).startTime(LocalTime.now()).type(EventType.REMOTE).build()));
-//    }
+    private void setupEventData() {
+        eventList.addAll(List.of(tmp));
+    }
 
     private void setupLayout() {
         setWidth("100%");
@@ -79,14 +112,21 @@ public class MapView
         rightView.setPadding(false);
         rightView.setSpacing(false);
 
+        HorizontalLayout horizontalLayout = new HorizontalLayout();
+        horizontalLayout.setPadding(true);
+        horizontalLayout.setMargin(true);
+        horizontalLayout.setAlignItems(Alignment.CENTER);
+        horizontalLayout.setJustifyContentMode(JustifyContentMode.START);
+        horizontalLayout.add(datePicker);
+        horizontalLayout.add(wifiCheckbox);
+
         add(leftView, rightView);
 
         leftView.add(map);
-        rightView.add(grid);
+        rightView.add(horizontalLayout, grid);
     }
 
     private void setupGrid() {
-        grid.setItems(eventList);
         grid.setWidthFull();
         grid.setDropMode(GridDropMode.BETWEEN);
         grid.setRowsDraggable(true);
@@ -102,12 +142,14 @@ public class MapView
         TimePicker endTime = new TimePicker();
         TextField descriptionField = new TextField();
 
-        grid.addComponentColumn(EventView::new).setEditorComponent(new EventEditView(nameField, startTime, endTime, descriptionField));
-        grid.addComponentColumn(this::createEditButton).setWidth("150px").setFlexGrow(0).setEditorComponent(createActionsLayout());
+        grid.addComponentColumn(EventView::new).setEditorComponent(
+                new EventEditView(nameField, startTime, endTime, descriptionField));
+        grid.addComponentColumn(this::createEditButton).setWidth("150px").setFlexGrow(0).setEditorComponent(
+                createActionsLayout());
 
         binder.forField(nameField).bind(Event::getName, Event::setName);
-        binder.forField(startTime).bind(Event::getStartTime, Event::setStartTime);
-        binder.forField(endTime).bind(Event::getEndTime, Event::setEndTime);
+        //binder.forField(startTime).bind(Event::getStartTime, Event::setStartTime);
+        //binder.forField(endTime).bind(Event::getEndTime, Event::setEndTime);
         binder.forField(descriptionField).bind(Event::getDescription, Event::setDescription);
         editor.setBinder(binder);
         editor.setBuffered(true);
@@ -129,7 +171,7 @@ public class MapView
         return editButton;
     }
 
-    private VerticalLayout createActionsLayout(){
+    private VerticalLayout createActionsLayout() {
         Button saveButton = new Button("Save", e -> {
             editor.save();
             editor.cancel();

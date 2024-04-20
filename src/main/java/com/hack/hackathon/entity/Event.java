@@ -1,6 +1,7 @@
 package com.hack.hackathon.entity;
 
 import com.hack.hackathon.enumeration.EventType;
+import com.sun.jna.platform.win32.Wincon;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+
 
 @Entity
 @AllArgsConstructor

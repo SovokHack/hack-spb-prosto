@@ -24,7 +24,6 @@ import java.util.Set;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
-    private final EventExternalService eventExternalService;
     private final ModelMapper modelMapper;
 
     public Event getById(Long id)
