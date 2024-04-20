@@ -6,6 +6,8 @@ import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalTime;
 
@@ -21,5 +23,5 @@ public class Event {
     private EventType type;
     private LocalTime startTime;
     private LocalTime endTime;
-    private String location;
+    private Coordinate coordinate;
 }
