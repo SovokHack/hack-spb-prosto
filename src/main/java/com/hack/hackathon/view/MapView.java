@@ -1,6 +1,7 @@
 package com.hack.hackathon.view;
 
 
+import com.hack.hackathon.entity.Coordinate;
 import com.hack.hackathon.entity.Event;
 import com.hack.hackathon.enumeration.EventType;
 import com.hack.hackathon.layout.MainLayout;
@@ -22,7 +23,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.Pageable;
 import org.vaadin.addons.maplibre.MapLibre;
@@ -48,19 +48,19 @@ public class MapView
     Event draggedItem;
 
     {
-        setupEventData();
+      //  setupEventData();
         setupLayout();
         setupGrid();
         setupDragAndDrop();
 
-        eventList.forEach(event -> map.addMarker(event.getX(), event.getY()).withPopup(
+        eventList.forEach(event -> map.addMarker(event.getCoordinate().getX(), event.getCoordinate().getY()).withPopup(
                 "<h3>" + event.getName()  + "</h3>" ));
 
     }
 
-    private void setupEventData() {
-        eventList.addAll(List.of(Event.builder().id(1L).x(0F).y(0F).name("name").description("description").endTime(LocalTime.now()).startTime(LocalTime.now()).type(EventType.REMOTE).build()));
-    }
+//    private void setupEventData() {
+//        eventList.addAll(List.of(Event.builder().id(1L).coordinate(new Coordinate(4F, 4F, "trvr")).name("name").description("description").endTime(LocalTime.now()).startTime(LocalTime.now()).type(EventType.REMOTE).build()));
+//    }
 
     private void setupLayout() {
         setWidth("100%");

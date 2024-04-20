@@ -12,5 +12,5 @@ public class PeterburgConfig {
     private final String allEventsUrl = mainUrlEvents + "event/&page={page}&pageSize={size}&periodsAfter={periodAfter}&periodsBefore={periodBefore}";
     private final String eventUrl = mainUrlEvents + "event/{id}";
     private final String groupsUrl = "https://digital.etu.ru/api/mobile/groups?studyYears=2021-2022";
-
+    private final String coordsUrl = "https://geocode.gate.petersburg.ru/autocomplete/universal?s={query}";
 }

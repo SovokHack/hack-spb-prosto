@@ -5,11 +5,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Embeddable
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Coordinate {
 
     @JsonProperty("latitude")
@@ -17,4 +21,6 @@ public class Coordinate {
     @JsonProperty("longitude")
     private Float y;
     private String name;
+
+
 }

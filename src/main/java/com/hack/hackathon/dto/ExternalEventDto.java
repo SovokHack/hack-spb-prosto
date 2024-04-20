@@ -10,4 +10,6 @@ import lombok.Setter;
 public class ExternalEventDto {
     private String organizerAddress;
     private PeriodDto registrationPeriod;
+
+
 }
