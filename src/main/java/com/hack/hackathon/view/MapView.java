@@ -55,11 +55,6 @@ public class MapView
     public MapView(EventExternalService eventExternalService) {
         this.eventExternalService = eventExternalService;
 
-        setupEventData();
-        setupLayout();
-        setupGrid();
-        setupDragAndDrop();
-
         datePicker = new DatePicker(event -> {
             grid.setItems(eventExternalService.fetchEvents(0L, 100L, event.getValue().atStartOfDay(),
                                                            event.getValue().atStartOfDay())
@@ -77,6 +72,13 @@ public class MapView
                                                              .build())
                                               .toList());
         });
+
+        setupEventData();
+        setupLayout();
+        setupGrid();
+        setupDragAndDrop();
+
+
 
         Coordinate germanOfficeCoordinates = new Coordinate(13.45489, 52.51390);
 

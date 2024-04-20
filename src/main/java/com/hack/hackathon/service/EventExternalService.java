@@ -38,8 +38,8 @@ public class EventExternalService {
         ResponseEntity<ExternalDto> responseEntity = restTemplate.exchange(peterburgConfig.getAllEventsUrl(),  HttpMethod.GET, new HttpEntity<>(new ExternalDto()), ExternalDto.class, Map.of(
                 "page", page,
                 "size", size,
-                "periodAfter", periodAfter,
-                "periodBefore", periodBefore
+                "periodAfter", periodAfter.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")),
+                "periodBefore", periodBefore.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"))
         ));
         log.info("res {}", responseEntity.getBody());
         return Objects.requireNonNull(responseEntity.getBody()).getResults();
