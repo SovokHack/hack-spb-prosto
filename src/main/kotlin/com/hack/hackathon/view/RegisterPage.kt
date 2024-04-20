@@ -21,7 +21,7 @@ class RegisterPage(
     private val userService: UserService,
     private val groupService: GroupService,
 ) : VerticalLayout() {
-    val user = User(Role.STUDENT, "", "", "")
+    val user = User(Role.STUDENT, "", "", "", "")
     init {
         val usernameField = TextField("username") //TODO props
         val passwordField = PasswordField("password")
