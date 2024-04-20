@@ -23,8 +23,8 @@ public class Event {
     private EventType type;
     private LocalTime startTime;
     private LocalTime endTime;
-    private Float x;
-    private Float y;
+    @Embedded
+    private Coordinate coordinate;
     private String externalId;
     private String link;
     private LocalDateTime originalStartTime;
