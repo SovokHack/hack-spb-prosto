@@ -1,5 +1,6 @@
 package com.hack.hackathon.view
 
+import com.hack.hackathon.layout.MainLayout
 import com.hack.hackathon.security.SecurityService
 import com.hack.hackathon.security.UserService
 import com.vaadin.flow.component.UI
@@ -13,7 +14,7 @@ import com.vaadin.flow.router.Route
 import jakarta.annotation.security.PermitAll
 
 
-@Route("login")
+@Route("login", layout = MainLayout::class)
 @PageTitle("Login")
 @PermitAll
 class LoginPage(

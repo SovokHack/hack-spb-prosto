@@ -9,5 +9,5 @@ public enum EventType {
     REMOTE("REMOTE"),
     NOT_REMOTE("NOT_REMOTE"),
     EXTERNAL("EXTERNAL");
-    private final String race;
+    private final String type;
 }

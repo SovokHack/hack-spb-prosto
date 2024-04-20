@@ -1,4 +1,4 @@
-package com.hack.hackathon.utils;
+package com.hack.hackathon.util;
 
 import com.hack.hackathon.config.PeterburgConfig;
 import org.springframework.http.HttpHeaders;

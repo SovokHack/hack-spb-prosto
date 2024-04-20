@@ -10,11 +10,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import lombok.RequiredArgsConstructor;
 
+import java.time.format.DateTimeFormatter;
+
 public class EventView
         extends VerticalLayout {
     EventView(Event event) {
         H3 name = new H3(event.getName());
-        Span interval = new Span(String.format(event.getStartTime().toString(), " - ", event.getEndTime().toString()));
+        Span interval = new Span(event.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) + " - " + event.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         Paragraph description = new Paragraph(event.getDescription());
 
         HorizontalLayout horizontalLayout = new HorizontalLayout(name, interval);

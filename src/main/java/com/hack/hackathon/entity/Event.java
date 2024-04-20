@@ -3,6 +3,7 @@ package com.hack.hackathon.entity;
 import com.hack.hackathon.enumeration.EventType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class Event {
     @Id
     private Long id;
@@ -21,7 +23,8 @@ public class Event {
     private EventType type;
     private LocalTime startTime;
     private LocalTime endTime;
-    private String location;
+    private Float x;
+    private Float y;
     private String externalId;
     private String link;
     private LocalDateTime originalStartTime;

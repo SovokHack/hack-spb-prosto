@@ -3,9 +3,7 @@ package com.hack.hackathon.layout
 import com.hack.hackathon.JavaView
 import com.hack.hackathon.security.SecurityService
 import com.hack.hackathon.vaadin.LocaleChanger
-import com.hack.hackathon.view.LoginPage
-import com.hack.hackathon.view.MainView
-import com.hack.hackathon.view.RegisterPage
+import com.hack.hackathon.view.*
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent
 import com.vaadin.flow.component.Component
 import com.vaadin.flow.component.UI
@@ -73,6 +71,9 @@ class MainLayout(
         val registerBtn = Button("register") {
             UI.getCurrent().navigate(RegisterPage::class.java)
         }
+        val profileBtn = Button("Profile") {
+            UI.getCurrent().navigate(UserView::class.java)
+        }
         val subMenu = settings.subMenu
         subMenu.addItem(themeToggle)
         subMenu.addItem(localeChanger)
@@ -116,7 +117,7 @@ class MainLayout(
         //Табы TODO
         tabs.add(
             routerLink("Main", MainView::class.java),
-            routerLink("Java Main", JavaView::class.java),
+            routerLink("Map", MapView::class.java),
         )
         tabs.addThemeVariants(TabsVariant.LUMO_CENTERED)
         tabs.style["margin"] = "0 auto"
