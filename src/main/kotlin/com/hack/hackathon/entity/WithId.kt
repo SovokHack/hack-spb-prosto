@@ -4,6 +4,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 
 @Entity
-class WithId {
+open class WithId {
     @Id var id : Long? = null
 }
