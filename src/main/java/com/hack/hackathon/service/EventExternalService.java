@@ -3,6 +3,8 @@ package com.hack.hackathon.service;
 import com.hack.hackathon.config.PeterburgConfig;
 import com.hack.hackathon.dto.ExternalDto;
 import com.hack.hackathon.dto.ExternalEventDto;
+import com.hack.hackathon.entity.Event;
+import com.hack.hackathon.security.SecurityService;
 import com.hack.hackathon.util.RestUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
