@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @AllArgsConstructor
@@ -17,8 +17,9 @@ public class Event {
     @Id
     private Long id;
     private String name;
+    private String description;
     private EventType type;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
     private String location;
 }

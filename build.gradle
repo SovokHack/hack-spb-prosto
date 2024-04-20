@@ -54,7 +54,7 @@ dependencyManagement {
     }
 }
 vaadin {
-    productionMode = true
+    productionMode = false
 }
 
 tasks.withType(KotlinCompile) {

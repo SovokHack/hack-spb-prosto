@@ -12,7 +12,8 @@ spring:
 server:
   port: 80
 
-
+vaadin:
+  launch-browser: true
 # SQL statements and parameters
 logging:
   level:
