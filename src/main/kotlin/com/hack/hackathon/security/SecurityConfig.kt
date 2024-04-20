@@ -22,7 +22,7 @@ class SecurityConfig : VaadinWebSecurity() {
         http.authorizeHttpRequests { auth ->
             auth.requestMatchers(
                 AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/images/*.png")
-            ).permitAll().requestMatchers("/**").anonymous()
+            ).permitAll()
 
         }
         super.configure(http)

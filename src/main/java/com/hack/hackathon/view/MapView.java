@@ -2,9 +2,7 @@ package com.hack.hackathon.view;
 
 
 import com.hack.hackathon.entity.Event;
-import com.hack.hackathon.enumeration.EventType;
 import com.hack.hackathon.layout.MainLayout;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -12,29 +10,19 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.renderer.LitRenderer;
-import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.flow.theme.lumo.LumoUtility;
-import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.vaadin.addons.maplibre.MapLibre;
 
-import java.sql.Array;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @AnonymousAllowed
@@ -45,13 +33,7 @@ public class MapView
         extends HorizontalLayout {
     private Event draggedItem;
     {
-        List<Event> eventList = new ArrayList<>(
-                List.of(new Event(1L, "Event 1", "Description for Event 1", EventType.REMOTE, LocalTime.now(),
-                                  LocalTime.now().plusHours(2), "Location for Event 1"),
-                        new Event(2L, "Event 2", "Description for Event 2", EventType.REMOTE, LocalTime.now(),
-                                  LocalTime.now().plusHours(2), "Location for Event 2"),
-                        new Event(3L, "Event 3", "Description for Event 3", EventType.REMOTE, LocalTime.now(),
-                                  LocalTime.now().plusHours(2), "Location for Event 3")));
+        List<Event> eventList = new ArrayList<>();
 
         setWidth("100%");
         setPadding(false);

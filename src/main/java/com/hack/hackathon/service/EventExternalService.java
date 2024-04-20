@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -29,10 +30,22 @@ public class EventExternalService {
     private final PeterburgConfig peterburgConfig;
     private final RestUtils restUtils;
 
-    public List<ExternalEventDto> fetchEvents(Long page, Long size, LocalDateTime periodsAfter, LocalDateTime periodBefore) throws IOException {
-        ResponseEntity<ExternalDto> responseEntity = restTemplate.exchange(peterburgConfig.getUrl() + "?page=" + page + "&pagesize=" + size,  HttpMethod.GET, new HttpEntity<>(new ExternalDto()), ExternalDto.class);
+    public List<ExternalEventDto> fetchEvents(Long page, Long size, LocalDateTime periodAfter, LocalDateTime periodBefore) throws IOException {
+        ResponseEntity<ExternalDto> responseEntity = restTemplate.exchange(peterburgConfig.getAllEventsUrl(),  HttpMethod.GET, new HttpEntity<>(new ExternalDto()), ExternalDto.class, Map.of(
+                "page", page,
+                "size", size,
+                "periodAfter", periodAfter,
+                "periodBefore", periodBefore
+        ));
         log.info("res {}", responseEntity.getBody());
         return Objects.requireNonNull(responseEntity.getBody()).getResults();
+    }
+
+    public ExternalEventDto eventById(Long eventId) {
+        ResponseEntity<ExternalEventDto> responseEntity = restTemplate.exchange(peterburgConfig.getEventUrl(), HttpMethod.GET, new HttpEntity<>(new ExternalEventDto()), ExternalEventDto.class, Map.of(
+                "id", eventId
+        ));
+        return responseEntity.getBody();
     }
 
 }
