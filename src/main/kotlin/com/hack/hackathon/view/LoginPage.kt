@@ -22,16 +22,11 @@ class LoginPage(
 ) : VerticalLayout(), BeforeEnterObserver {
     private val loginForm = LoginForm()
     init {
-        if (securityService.authenticatedUser != null) {
-            Notification.show("already authenticated") //TODO props
-            UI.getCurrent().navigate(MainView::class.java)
-        } else {
             init()
-        }
-
     }
 
     fun init() {
+        loginForm.action = "login"
         add(loginForm)
     }
 

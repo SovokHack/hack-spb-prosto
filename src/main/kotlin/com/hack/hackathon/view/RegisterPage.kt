@@ -35,8 +35,8 @@ class RegisterPage(
         val form = FormLayout()
         val binder = Binder(User::class.java)
         binder.bean = user
-        val emptyValidator: (String?) -> Boolean = {gr -> gr?.isBlank() ?: true}
-        binder.forField(usernameField).asRequired().withValidator(emptyValidator, "must not be empty").withValidator({username -> userService.usernameExists(username)}, "username already exists").bind({it.username}, {user, username -> user.username = username})
+        val emptyValidator: (String?) -> Boolean = {gr -> gr?.isNotBlank() ?: true}
+        binder.forField(usernameField).asRequired().withValidator(emptyValidator, "must not be empty").withValidator({username -> !userService.usernameExists(username)}, "username already exists").bind({it.username}, {user, username -> user.username = username})
         binder.forField(groupField).asRequired().withValidator(emptyValidator, "must not be empty").withValidator({group -> groupService.groupExists(group)}, "group already exists").bind({it.group },{user, group -> user.group = group})
         binder.forField(passwordField).asRequired().withValidator(emptyValidator, "must not be empty").bind({ it.password }, { user, pass -> user.password = pass } )
         binder.forField(homeAddressField).asRequired().withValidator(emptyValidator, "must not be empty").bind({ it.homeAddress }, { user, address -> user.homeAddress = address })
