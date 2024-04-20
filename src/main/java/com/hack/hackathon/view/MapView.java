@@ -59,12 +59,7 @@ public class MapView
     }
 
     private void setupEventData() {
-        eventList.addAll(List.of(new Event(1L, "Event 1", "Description for Event 1", EventType.REMOTE, LocalTime.now(),
-                                  LocalTime.now().plusHours(2), new Coordinate(10.5, 20.7)),
-                        new Event(2L, "Event 2", "Description for Event 2", EventType.EXTERNAL, LocalTime.now(),
-                                  LocalTime.now().plusHours(2), new Coordinate(10.6, 20.7)),
-                        new Event(3L, "Event 3", "Description for Event 3", EventType.REMOTE, LocalTime.now(),
-                                  LocalTime.now().plusHours(2), new Coordinate(10.7, 20.7))));
+
     }
 
     private void setupLayout() {
