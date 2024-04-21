@@ -25,7 +25,7 @@ public class VacancyService {
     private final PeterburgConfig peterburgConfig;
 
     public JSONArray getExperience(){
-        ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getVacancyUrl(), String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getScheduleUrl(), String.class);
         JSONObject responseObject = new JSONArray(response.getBody()).getJSONObject(0);
         JSONArray experiencesArray = responseObject.getJSONArray("results");
         return experiencesArray;

@@ -37,8 +37,8 @@ public class EventExternalService {
         ResponseEntity<ExternalDto> responseEntity = restTemplate.getForEntity(peterburgConfig.getAllEventsUrl(), ExternalDto.class, Map.of(
                 "page", page,
                 "size", size,
-                "periodAfter", periodAfter.atOffset(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")),
-                "periodBefore", periodBefore.atOffset(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"))
+                "periodAfter", periodAfter.atOffset(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"))/*,
+                "periodBefore", periodBefore.atOffset(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"))*/
         ));
         log.info("res {}", responseEntity.getBody());
         return Objects.requireNonNull(responseEntity.getBody()).getResults();
@@ -54,13 +54,12 @@ public class EventExternalService {
     public List<Event> retrieveSchedule(String group, LocalDateTime now) {
         LocalDateTime startTimeOrig = LocalDateTime.of(now.toLocalDate(), LocalTime.of(0, 0));
         LocalDateTime endTimeOrig = LocalDateTime.of(now.toLocalDate(), LocalTime.of(23, 59));
-        if (eventService.exists(startTimeOrig, endTimeOrig , Set.of(EventType.OFFLINE, EventType.ONLINE))) {
+        if (!eventService.exists(startTimeOrig, endTimeOrig , Set.of(EventType.OFFLINE, EventType.ONLINE))) {
             ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getScheduleUrl(), String.class, Map.of("group", group));
-            Optional<JSONArray> lessons = Optional.ofNullable(new JSONArray(response.getBody())
-                    .getJSONObject(0)
+            Optional<JSONArray> lessons = Optional.ofNullable(new JSONObject(response.getBody())
                     .getJSONObject(group)
-                    .getJSONArray("days")
-                    .getJSONObject(now.get(ChronoField.DAY_OF_WEEK))
+                    .getJSONObject("days")
+                    .getJSONObject(String.valueOf((now.get(ChronoField.DAY_OF_WEEK) - 1)))
                     .optJSONArray("lessons"));
             lessons.ifPresent(it -> {
                 for (int i = 0; i < it.length(); i++) {
@@ -70,9 +69,9 @@ public class EventExternalService {
                         var startTime = LocalDateTime.of(now.toLocalDate(), LocalTime.parse(lesson.getString("start_time"), formatter));
                         var endTime = LocalDateTime.of(now.toLocalDate(), LocalTime.parse(lesson.getString("end_time"), formatter));
                         var event = Event.builder().name(lesson.optString("name"))
-                                //.startTime(startTime)
-                                //.endTime(endTime)
-                                .type(lesson.getBoolean("is_distant") ? EventType.ONLINE : EventType.OFFLINE).build();
+                                .startTime(startTime)
+                                .endTime(endTime)
+                                .type(lesson.optBoolean("is_distant", false) ? EventType.ONLINE : EventType.OFFLINE).build();
                         eventService.save(event);
                     }
 

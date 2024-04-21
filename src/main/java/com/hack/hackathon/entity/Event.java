@@ -18,12 +18,12 @@ import java.time.LocalTime;
 @Data
 @Builder
 public class Event {
-    @Id private Long id;
+    @Id @GeneratedValue private Long id;
     private String name;
     private String description;
     private EventType type;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     @Embedded private Coordinate coordinate;
     private String externalId;
     private String link;
