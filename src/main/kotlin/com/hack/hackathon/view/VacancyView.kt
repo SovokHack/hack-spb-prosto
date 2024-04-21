@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.page.WebStorage
 import com.vaadin.flow.router.Route
 import jakarta.annotation.security.PermitAll
+import org.json.JSONArray
 import org.json.JSONObject
 
 @PermitAll
@@ -63,7 +64,8 @@ class VacancyView(
     }
 
     fun setItems() {
-        grid.setItems( vacancyService.getVacancies(specializationService.specialization, filters.employmentType,filters.experience, filters.schedule).toList().map { it as JSONObject })
+        val list = vacancyService.getVacancies(specializationService.specialization, filters.employmentType,filters.experience, filters.schedule).toListed()
+        grid.setItems(list )
     }
 }
 
@@ -72,3 +74,11 @@ class Filters(
     var schedule : VacancySchedule? = null,
     var employmentType : VacancyEmploymentType? = null,
 )
+
+fun JSONArray.toListed() : List<JSONObject> {
+    val list = mutableListOf<JSONObject>()
+    for (i in 0 until length()) {
+        list.add(this.getJSONObject(i))
+    }
+    return list
+}
