@@ -1,5 +1,8 @@
-package com.hack.hackathon.dto;
+package com.hack.hackathon.enumeration;
 
+import lombok.Getter;
+
+@Getter
 public enum VacancyEmploymentType {
     FULL_TIME_JOB(1,"Полная занятость"),
     PART_TIME_JOB(2,"Частичная занятость"),

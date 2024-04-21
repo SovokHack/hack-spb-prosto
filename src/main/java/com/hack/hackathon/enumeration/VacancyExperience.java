@@ -1,8 +1,8 @@
-package com.hack.hackathon.dto;
+package com.hack.hackathon.enumeration;
 
 import lombok.Getter;
 
-
+@Getter
 public enum VacancyExperience {
     WITHOUT_EXPERIENCE(1, "Без опыта"),
     BEETWEEN_1_3(2,"От 1 года до 3 лет"),

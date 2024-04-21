@@ -1,8 +1,13 @@
 package com.hack.hackathon.view
 
+import com.hack.hackathon.enumeration.VacancyEmploymentType
+import com.hack.hackathon.enumeration.VacancyExperience
+import com.hack.hackathon.enumeration.VacancySchedule
 import com.hack.hackathon.layout.MainLayout
 import com.hack.hackathon.service.SpecializationService
+import com.hack.hackathon.service.VacancyService
 import com.vaadin.flow.component.combobox.ComboBox
+import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.H3
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
@@ -15,47 +20,53 @@ import org.json.JSONObject
 
 @Route("vacancy", layout = MainLayout::class)
 class VacancyView(
-    private val specializationService: SpecializationService
+    private val specializationService: SpecializationService,
+    private val vacancyService: VacancyService,
 ) : VerticalLayout() {
-
+    val grid = Grid<JSONObject>(JSONObject::class.java)
+    val filters = Filters()
     init {
-        val experienceFilter = ComboBox<String>()
-        val scheduleFilter = ComboBox<String>()
-        val employmentTypeFilter = ComboBox<String>()
-        val filters = Filters()
-        WebStorage.getItem("experienceFilter") { if (it != null) experienceFilter.value = it }
-        WebStorage.getItem("scheduleFilter") { if (it != null) scheduleFilter.value = it }
-        WebStorage.getItem("employmentTypeFilter") { if (it != null) employmentTypeFilter.value = it }
+        val experienceFilter = ComboBox<VacancyExperience>("Опыт")
+        val scheduleFilter = ComboBox<VacancySchedule>("График")
+        val employmentTypeFilter = ComboBox<VacancyEmploymentType>("Тип занятости")
+        experienceFilter.setItemLabelGenerator { it.getName() }
+        scheduleFilter.setItemLabelGenerator { it.getName() }
+        employmentTypeFilter.setItemLabelGenerator { it.getName() }
+
+        WebStorage.getItem("experienceFilter") { if (it != null) experienceFilter.value = VacancyExperience.valueOf(it) }
+        WebStorage.getItem("scheduleFilter") { if (it != null) scheduleFilter.value = VacancySchedule.valueOf(it) }
+        WebStorage.getItem("employmentTypeFilter") { if (it != null) employmentTypeFilter.value = VacancyEmploymentType.valueOf(it) }
         experienceFilter.addValueChangeListener {
-            WebStorage.setItem("experienceFilter", it.value)
+            filters.experience = it.value
+            WebStorage.setItem("experienceFilter", it.value.name)
+            setItems()
         }
         scheduleFilter.addValueChangeListener {
-            WebStorage.setItem("scheduleFilter", it.value)
+            filters.schedule = it.value
+            WebStorage.setItem("scheduleFilter", it.value.name)
+            setItems()
         }
         employmentTypeFilter.addValueChangeListener {
-            WebStorage.setItem("employmentTypeFilter", it.value)
+            filters.employmentType = it.value
+            WebStorage.setItem("employmentTypeFilter", it.value.name)
+            setItems()
         }
-        val binder = Binder(Filters::class.java)
-        binder.bean = filters
-        /*binder.forField(experienceFilter).bind({it.experience},{it, value -> it.experience = value})
-        binder.forField(employmentTypeFilter).bind({it.employmentType}, {it, value -> it.employmentType = value})
-        binder.forField(scheduleFilter).bind({it.schedule}, {it, value -> it.schedule = value})*/
-
-        val json = JSONArray()
-        val list = mutableListOf<HorizontalLayout>()
-        for (i in 0 until  json.length()) {
-            val obj = json.getJSONObject(i)
-            val verticalLayout = VerticalLayout()
-            verticalLayout.add(H3(obj.getString("name")))
-            verticalLayout.add(Div(obj.getString("description")))
-        }
+        grid.setSizeFull()
+        /*grid.addComponentColumn {  }*/
+        val layout = HorizontalLayout(employmentTypeFilter, scheduleFilter, scheduleFilter)
+        add(layout)
+        add(grid)
 
 
+    }
+
+    fun setItems() {
+        grid.setItems(vacancyService.getVacancies(filters.employmentType,filters.experience, filters.schedule).toList() as MutableCollection<JSONObject>)
     }
 }
 
 class Filters(
-    var experience : Int? = null,
-    var schedule : Int? = null,
-    var employmentType : Int? = null,
+    var experience : VacancyExperience? = null,
+    var schedule : VacancySchedule? = null,
+    var employmentType : VacancyEmploymentType? = null,
 )

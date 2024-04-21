@@ -1,5 +1,8 @@
-package com.hack.hackathon.dto;
+package com.hack.hackathon.enumeration;
 
+import lombok.Getter;
+
+@Getter
 public enum VacancySchedule {
     FULL_DAY(1,"Полный день"),
     SHIFT_SCHEDULE(2, "Сменный график"),
