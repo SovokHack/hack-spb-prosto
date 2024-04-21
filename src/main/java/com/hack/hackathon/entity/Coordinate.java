@@ -18,6 +18,7 @@ public class Coordinate {
     private Float x;
     @JsonProperty("longitude")
     private Float y;
+    @JsonProperty("name")
     @Column(name = "address")
     private String address;
 

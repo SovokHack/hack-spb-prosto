@@ -48,15 +48,7 @@ public class UserView extends VerticalLayout {
         ComboBox<Coordinate> homeAddress = new ComboBox<>(getTranslation("app.register.homeAddress"));
 
 // Set data items for the ComboBox with a lambda function
-        homeAddress.setItems(q -> {
-            // Check if the filter is present
-            if (q.getFilter().isPresent()) {
-                String filter = q.getFilter().get(); // Get the filter text
-                return coordinateService.query(filter).stream(); // Get matching coordinates
-            } else {
-                return Stream.<Coordinate>empty(); // Return an empty list
-            }
-        });
+        homeAddress.setItems(coordinateService.query("Невс 6"));
         homeAddress.setItemLabelGenerator(it -> {
             if (it != null) {
                 return it.getAddress();
@@ -64,6 +56,7 @@ public class UserView extends VerticalLayout {
                 return null;
             }
         });
+
 
         ComboBox<String> group = new ComboBox<>(getTranslation("app.register.group"));
         group.setItems(groupService.getGroups());

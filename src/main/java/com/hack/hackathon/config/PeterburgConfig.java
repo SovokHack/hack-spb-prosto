@@ -16,5 +16,5 @@ public class PeterburgConfig {
     private final String scheduleUrl = "https://digital.etu.ru/api/mobile/schedule?groupNumber={group}";
     private final String vacanciesUrl = "https://researchinspb.ru/api/v1/public/vacancy/";
     private final String wifiUrl = "https://spb-classif.gate.petersburg.ru/api/v2/datasets/195/versions/latest/data/417/?page={page}&per_page={size}";
-    private final String routingUrl = "https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62481d98a47c02b0497ba1dc0d0e709ac442&start={startLong},{startLang}&end={endLong},{endLang}";
+    private final String routingUrl = "https://api.openrouteservice.org/v2/directions/foot-walking?api_key=5b3ce3597851110001cf62481d98a47c02b0497ba1dc0d0e709ac442&start={startLong},{startLang}&end={endLong},{endLang}";
 }

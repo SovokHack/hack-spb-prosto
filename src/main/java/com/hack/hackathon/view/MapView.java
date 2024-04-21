@@ -67,7 +67,7 @@ public class MapView
     Checkbox externalEventsCheckBox = new Checkbox();
     Button addButton = new Button();
 
-    List<MarkerFeature> routeMarkers;
+    List<MarkerFeature> routeMarkers = new ArrayList<>();
 
     public MapView(
             EventExternalService eventExternalService, SecurityService securityService, EventService eventService,
@@ -415,7 +415,7 @@ public class MapView
             routeMarkers.forEach(route -> map.getFeatureLayer().removeFeature(route));
             routeMarkers.clear();
 
-            drawRoute(securityService.getAuthenticatedUser().getHomeAddress().getX().doubleValue(), securityService.getAuthenticatedUser().getHomeAddress().getY().doubleValue(),event.getCoordinate().getX().doubleValue(), event.getCoordinate().getY().doubleValue());
+            drawRoute(securityService.getAuthenticatedUser().getHomeAddress().getX().doubleValue(), securityService.getAuthenticatedUser().getHomeAddress().getY().doubleValue(), event.getCoordinate() == null ? 30.32F : event.getCoordinate().getX().doubleValue(), event.getCoordinate() == null ? 59.97F : event.getCoordinate().getY().doubleValue());
         });
         return editButton;
     }
