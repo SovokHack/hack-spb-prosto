@@ -18,7 +18,7 @@ public class SpecializationService {
             3, "Сантехник"
     );
 
-    private String getSpecialization() {
+    public String getSpecialization() {
         int group = Integer.parseInt(securityService.getAuthenticatedUser().getGroup());
         return map.get(group % 4);
     }

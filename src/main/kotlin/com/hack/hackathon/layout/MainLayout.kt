@@ -118,6 +118,7 @@ class MainLayout(
         tabs.add(
             routerLink("Main", MainView::class.java),
             routerLink("Map", MapView::class.java),
+            routerLink("Vacancy", VacancyView::class.java),
         )
         tabs.addThemeVariants(TabsVariant.LUMO_CENTERED)
         tabs.style["margin"] = "0 auto"

@@ -1,61 +1,84 @@
 package com.hack.hackathon.view
 
+import com.hack.hackathon.enumeration.VacancyEmploymentType
+import com.hack.hackathon.enumeration.VacancyExperience
+import com.hack.hackathon.enumeration.VacancySchedule
 import com.hack.hackathon.layout.MainLayout
 import com.hack.hackathon.service.SpecializationService
+import com.hack.hackathon.service.VacancyService
 import com.vaadin.flow.component.combobox.ComboBox
-import com.vaadin.flow.component.html.Div
-import com.vaadin.flow.component.html.H3
+import com.vaadin.flow.component.grid.Grid
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.page.WebStorage
-import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.router.Route
+import jakarta.annotation.security.PermitAll
 import org.json.JSONArray
 import org.json.JSONObject
 
+@PermitAll
 @Route("vacancy", layout = MainLayout::class)
 class VacancyView(
-    private val specializationService: SpecializationService
+    private val specializationService: SpecializationService,
+    private val vacancyService: VacancyService,
 ) : VerticalLayout() {
-
+    val grid = Grid<JSONObject>(JSONObject::class.java, false)
+    val filters = Filters()
     init {
-        val experienceFilter = ComboBox<String>()
-        val scheduleFilter = ComboBox<String>()
-        val employmentTypeFilter = ComboBox<String>()
-        val filters = Filters()
-        WebStorage.getItem("experienceFilter") { if (it != null) experienceFilter.value = it }
-        WebStorage.getItem("scheduleFilter") { if (it != null) scheduleFilter.value = it }
-        WebStorage.getItem("employmentTypeFilter") { if (it != null) employmentTypeFilter.value = it }
+        val experienceFilter = ComboBox<VacancyExperience>("Опыт")
+        val scheduleFilter = ComboBox<VacancySchedule>("График")
+        val employmentTypeFilter = ComboBox<VacancyEmploymentType>("Тип занятости")
+        experienceFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
+        scheduleFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
+        employmentTypeFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
+
+        WebStorage.getItem("experienceFilter") { if (it != null) experienceFilter.value = VacancyExperience.valueOf(it) }
+        WebStorage.getItem("scheduleFilter") { if (it != null) scheduleFilter.value = VacancySchedule.valueOf(it) }
+        WebStorage.getItem("employmentTypeFilter") { if (it != null) employmentTypeFilter.value = VacancyEmploymentType.valueOf(it) }
         experienceFilter.addValueChangeListener {
-            WebStorage.setItem("experienceFilter", it.value)
+            filters.experience = it.value
+            WebStorage.setItem("experienceFilter", it.value.name)
+            setItems()
         }
+
+        experienceFilter.setItems(VacancyExperience.entries)
+        scheduleFilter.setItems(VacancySchedule.entries)
+        employmentTypeFilter.setItems(VacancyEmploymentType.entries)
         scheduleFilter.addValueChangeListener {
-            WebStorage.setItem("scheduleFilter", it.value)
+            filters.schedule = it.value
+            WebStorage.setItem("scheduleFilter", it.value.name)
+            setItems()
         }
         employmentTypeFilter.addValueChangeListener {
-            WebStorage.setItem("employmentTypeFilter", it.value)
+            filters.employmentType = it.value
+            WebStorage.setItem("employmentTypeFilter", it.value.name)
+            setItems()
         }
-        val binder = Binder(Filters::class.java)
-        binder.bean = filters
-        /*binder.forField(experienceFilter).bind({it.experience},{it, value -> it.experience = value})
-        binder.forField(employmentTypeFilter).bind({it.employmentType}, {it, value -> it.employmentType = value})
-        binder.forField(scheduleFilter).bind({it.schedule}, {it, value -> it.schedule = value})*/
-
-        val json = JSONArray()
-        val list = mutableListOf<HorizontalLayout>()
-        for (i in 0 until  json.length()) {
-            val obj = json.getJSONObject(i)
-            val verticalLayout = VerticalLayout()
-            verticalLayout.add(H3(obj.getString("name")))
-            verticalLayout.add(Div(obj.getString("description")))
-        }
+        grid.setSizeFull()
+        grid.addComponentColumn { VacancyCardView(it) }
+        val layout = HorizontalLayout(employmentTypeFilter, scheduleFilter, experienceFilter)
+        add(layout)
+        add(grid)
 
 
+    }
+
+    fun setItems() {
+        val list = vacancyService.getVacancies(specializationService.specialization, filters.employmentType,filters.experience, filters.schedule).toListed()
+        grid.setItems(list )
     }
 }
 
 class Filters(
-    var experience : Int? = null,
-    var schedule : Int? = null,
-    var employmentType : Int? = null,
+    var experience : VacancyExperience? = null,
+    var schedule : VacancySchedule? = null,
+    var employmentType : VacancyEmploymentType? = null,
 )
+
+fun JSONArray.toListed() : List<JSONObject> {
+    val list = mutableListOf<JSONObject>()
+    for (i in 0 until length()) {
+        list.add(this.getJSONObject(i))
+    }
+    return list
+}
