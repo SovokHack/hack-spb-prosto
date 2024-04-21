@@ -74,10 +74,8 @@ public class EventExternalService {
                                 .type(lesson.optBoolean("is_distant", false) ? EventType.ONLINE : EventType.OFFLINE).build();
                         eventService.save(event);
                     }
-
                 }
             });
-
         }
         return eventService.findAll(startTimeOrig, endTimeOrig, Set.of(EventType.ONLINE, EventType.OFFLINE));
     }
