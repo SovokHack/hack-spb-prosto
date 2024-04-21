@@ -5,7 +5,9 @@ import com.hack.hackathon.security.SecurityService
 import com.hack.hackathon.security.UserService
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.login.LoginForm
+import com.vaadin.flow.component.login.LoginOverlay
 import com.vaadin.flow.component.notification.Notification
+import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.router.BeforeEnterEvent
 import com.vaadin.flow.router.BeforeEnterObserver
@@ -17,24 +19,30 @@ import jakarta.annotation.security.PermitAll
 @Route("login", layout = MainLayout::class)
 @PageTitle("Login")
 @PermitAll
-class LoginPage(
+class LoginPage (
     private val userService: UserService,
     private val securityService: SecurityService
 ) : VerticalLayout(), BeforeEnterObserver {
-    private val loginForm = LoginForm()
+    private val loginOverlay = LoginOverlay();
+
+
     init {
+        alignItems=FlexComponent.Alignment.CENTER;
             init()
         loginForm.isForgotPasswordButtonVisible = false
     }
 
     fun init() {
-        loginForm.action = "login"
-        add(loginForm)
+        loginOverlay.action = "login"
+        loginOverlay.isOpened = true
+        loginOverlay.setTitle("Student Helper")
+        loginOverlay.setDescription("Hack Spb Prosto");
+        add(loginOverlay)
     }
 
     override fun beforeEnter(beforeEnterEvent: BeforeEnterEvent?) {
         if(beforeEnterEvent?.location?.queryParameters?.parameters?.containsKey("error") == true) {
-            loginForm.isError = true;
+            loginOverlay.isError = true;
         }
     }
 }
