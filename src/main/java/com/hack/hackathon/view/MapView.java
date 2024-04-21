@@ -20,17 +20,14 @@ import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
-import com.vaadin.flow.component.map.configuration.Feature;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
-import com.vaadin.flow.component.map.configuration.style.Fill;
 import com.vaadin.flow.component.map.configuration.style.Icon;
+import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.BackEndDataProvider;
-import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -45,7 +42,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @PermitAll
 @PageTitle("Map")
@@ -72,6 +68,17 @@ public class MapView
         this.eventExternalService = eventExternalService;
         this.eventService = eventService;
         this.wifiExternalService = wifiExternalService;
+
+        TextStyle textStyle = new TextStyle();
+        textStyle.setFont("bold 16px sans-serif");
+        textStyle.setStroke("#fdf4ff", 3);
+        textStyle.setFill("#701a75");
+        textStyle.setTextAlign(TextStyle.TextAlign.LEFT);
+        textStyle.setOffset(22, -18);
+
+        clickedMarker = new MarkerFeature();
+        clickedMarker.setText("Here");
+        clickedMarker.setTextStyle(textStyle);
 
         List<MarkerFeature> eventMarkers = new ArrayList<>();
 
@@ -125,10 +132,26 @@ public class MapView
 
         map.addFeatureClickListener(event -> {
             dialog.removeAll();
+            dialog.getFooter().removeAll();
             dialog.add(eventExternalService.getById(Long.valueOf(event.getFeature().getId())).getTitle());
             Button button = new Button("Add", e -> {
                 var tmp = eventExternalService.getById(Long.valueOf(event.getFeature().getId()));
-                //eventService.save(new Event(null, tmp) );
+                eventService.save(new Event(null, tmp.getTitle(), tmp.getOrganizerAddress(), EventType.OFFLINE, tmp.getPeriods().get(0).getLower(), tmp.getPeriods().get(0).getUpper(), new com.hack.hackathon.entity.Coordinate(tmp.getCoordinates().get(1).floatValue(), tmp.getCoordinates().get(0).floatValue(), tmp.getOrganizerAddress()), tmp.getId().toString(), null, null));
+
+                List<Event> eventList = eventExternalService.retrieveSchedule(
+                        securityService.getAuthenticatedUser().getGroup(),
+                        LocalDateTime.of(datePicker.getValue(), LocalTime.now()));
+
+                eventList.forEach(
+                        eventExternal -> {
+                            eventExternal.setType(EventType.EXTERNAL);
+                            MarkerFeature markerFeature = new MarkerFeature(eventExternal.getCoordinate() == null ? new Coordinate(30.32F, 59.97F) : new Coordinate(eventExternal.getCoordinate().getX(), eventExternal.getCoordinate().getY()));
+                            markerFeature.setId(eventExternal.getId().toString());
+                            scheduleEventMarkers.add(markerFeature);
+                        });
+
+                grid.setItems(eventList);
+                dialog.close();
             });
             dialog.getFooter().add(button);
             dialog.open();
@@ -143,17 +166,14 @@ public class MapView
                 map.setCenter(new Coordinate(event.getCoordinate().getX(), event.getCoordinate().getY()));
                 map.setZoom(14);
 
-                eventMarkers.get(0).getStyle().setFill(new Fill("#FF0000"));
+                clickedMarker.setCoordinates(new Coordinate(event.getCoordinate().getX(), event.getCoordinate().getY()));
+                map.getFeatureLayer().addFeature(clickedMarker);
             }
         });
 
-
-        grid.getDataProvider().fetch(new Query<>()).forEach(event -> {
-            MarkerFeature markerFeature = new MarkerFeature(new Coordinate(event.getCoordinate().getX(), event
-            .getCoordinate().getY()));
-            markerFeature.setId(event.getExternalId());
-            markerFeature.setText(event.getName());
-            externalEventsMarkers.add(markerFeature);
+        map.addViewMoveEndEventListener(event -> {
+            clickedMarker.setCoordinates(new Coordinate(0, 0));
+            map.getFeatureLayer().removeFeature(clickedMarker);
         });
 
         externalEventsCheckBox.setLabel("Show External Events");
@@ -215,6 +235,9 @@ public class MapView
             event1.setCoordinate(new com.hack.hackathon.entity.Coordinate(
                     (float) endCoordinates.getX(), (float) endCoordinates.getY(), ""));
             eventService.save(event1);
+
+            clickedMarker.setCoordinates(new Coordinate(0, 0));
+            map.getFeatureLayer().removeFeature(clickedMarker);
         });
 
         setupEventData();
