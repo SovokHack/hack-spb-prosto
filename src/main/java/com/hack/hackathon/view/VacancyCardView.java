@@ -3,6 +3,7 @@ package com.hack.hackathon.view;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.awt.*;
@@ -35,9 +36,18 @@ public class VacancyCardView extends VerticalLayout {
         employmentType.setLabel("Тип занятости");
 
         //График
-        TextField schedule = new TextField(json.getJSONObject("schedule").getString("name"));
-        schedule.setReadOnly(true);
-        schedule.setLabel("График");
+        JSONArray scheduleArray = json.getJSONArray("schedule");
+        String scheduleName;
+        if (scheduleArray.length() > 1) {
+            JSONObject secondItem = scheduleArray.getJSONObject(1);
+            scheduleName = secondItem.getString("name");
+        } else {
+            scheduleName = "No data"; // Или другое значение по умолчанию
+        }
+
+        TextField scheduleField = new TextField(scheduleName);
+        scheduleField.setLabel("График");
+        scheduleField.setReadOnly(true);
 
 
         //Требуемый опыт
