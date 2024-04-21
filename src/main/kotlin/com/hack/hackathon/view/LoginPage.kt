@@ -29,7 +29,7 @@ class LoginPage (
     init {
         alignItems=FlexComponent.Alignment.CENTER;
             init()
-        loginForm.isForgotPasswordButtonVisible = false
+        loginOverlay.isForgotPasswordButtonVisible = false
     }
 
     fun init() {
