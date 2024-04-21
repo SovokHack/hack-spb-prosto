@@ -5,7 +5,6 @@ import com.hack.hackathon.dto.ExternalDto;
 import com.hack.hackathon.dto.ExternalEventDto;
 import com.hack.hackathon.entity.Event;
 import com.hack.hackathon.enumeration.EventType;
-import com.hack.hackathon.security.SecurityService;
 import com.hack.hackathon.util.RestUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -46,7 +44,7 @@ public class EventExternalService {
         return Objects.requireNonNull(responseEntity.getBody()).getResults();
     }
 
-    public ExternalEventDto eventById(Long eventId) {
+    public ExternalEventDto getById(Long eventId) {
         ResponseEntity<ExternalEventDto> responseEntity = restTemplate.exchange(peterburgConfig.getEventUrl(), HttpMethod.GET, new HttpEntity<>(new ExternalEventDto()), ExternalEventDto.class, Map.of(
                 "id", eventId
         ));
@@ -72,8 +70,8 @@ public class EventExternalService {
                         var startTime = LocalDateTime.of(now.toLocalDate(), LocalTime.parse(lesson.getString("start_time"), formatter));
                         var endTime = LocalDateTime.of(now.toLocalDate(), LocalTime.parse(lesson.getString("end_time"), formatter));
                         var event = Event.builder().name(lesson.optString("name"))
-                                .startTime(startTime)
-                                .endTime(endTime)
+                                //.startTime(startTime)
+                                //.endTime(endTime)
                                 .type(lesson.getBoolean("is_distant") ? EventType.ONLINE : EventType.OFFLINE).build();
                         eventService.save(event);
                     }

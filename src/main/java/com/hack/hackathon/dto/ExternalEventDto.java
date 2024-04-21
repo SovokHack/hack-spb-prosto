@@ -2,6 +2,7 @@ package com.hack.hackathon.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Getter
 @Setter
 public class ExternalEventDto {
@@ -57,6 +59,7 @@ public class ExternalEventDto {
     private TypeDTO typeof;
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class OrganizerDTO {
         private String name;
         private int id;
@@ -64,6 +67,7 @@ public class ExternalEventDto {
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class EventTypeDTO {
         private int id;
         private String name;
@@ -71,30 +75,35 @@ public class ExternalEventDto {
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class MemberStatusDTO {
         private String id;
         private String name;
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class EventFormatDTO {
         private String id;
         private String name;
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class StatusDTO {
         private String id;
         private String name;
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class AgeRangeDTO {
         private int lower;
         private int upper;
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class ImageDTO {
         private int id;
         private String name;
@@ -102,6 +111,7 @@ public class ExternalEventDto {
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class ParentDTO {
         private int id;
         private String name;
@@ -109,6 +119,7 @@ public class ExternalEventDto {
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class TypeDTO {
         private int id;
         private String name;
@@ -116,6 +127,7 @@ public class ExternalEventDto {
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public class PeriodDto {
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX", timezone = "Europe/Moscow")
         private LocalDateTime lower;

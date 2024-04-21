@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 
 @Entity
@@ -17,20 +18,14 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class Event {
-    @Id
-    private Long id;
+    @Id private Long id;
     private String name;
     private String description;
     private EventType type;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    @Embedded
-    private Coordinate coordinate;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    @Embedded private Coordinate coordinate;
     private String externalId;
     private String link;
-    private LocalDateTime originalStartTime;
-    private LocalDateTime originalEndTime;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @ManyToOne(fetch = FetchType.EAGER) @JoinColumn(name = "user_id") private User user;
 }
