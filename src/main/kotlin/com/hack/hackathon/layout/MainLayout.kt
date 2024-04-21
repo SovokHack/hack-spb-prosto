@@ -61,23 +61,26 @@ class MainLayout(
         }
         val localeChanger: LocaleChanger = LocaleChanger()
         val settings = menuBar.addItem(getTranslation("app.header-box.title"))
-        val logoutBtn = Button("logout") {
+        val logoutBtn = Button(getTranslation("app.logout")) {
             securityService.logout()
         }
-        val loginBtn = Button("login") {
+        val loginBtn = Button(getTranslation("app.login")) {
             UI.getCurrent().navigate(LoginPage::class.java)
         }
         logoutBtn.addThemeVariants(ButtonVariant.LUMO_ERROR)
-        val registerBtn = Button("register") {
+        val registerBtn = Button(getTranslation("app.register")) {
             UI.getCurrent().navigate(RegisterPage::class.java)
         }
-        val profileBtn = Button("Profile") {
+        val profileBtn = Button(getTranslation("app.profile")) {
             UI.getCurrent().navigate(UserView::class.java)
         }
         val subMenu = settings.subMenu
         subMenu.addItem(themeToggle)
         subMenu.addItem(localeChanger)
-        securityService.authenticatedUser?.let { subMenu.addItem(logoutBtn) } ?: let {
+        securityService.authenticatedUser?.let {
+            subMenu.addItem(logoutBtn)
+            subMenu.addItem(profileBtn)
+        } ?: let {
             subMenu.addItem(loginBtn)
             subMenu.addItem(registerBtn)
         }
@@ -116,9 +119,9 @@ class MainLayout(
         val tabs = RouteTabs()
         //Табы TODO
         tabs.add(
-            routerLink("Main", MainView::class.java),
-            routerLink("Map", MapView::class.java),
-            routerLink("Vacancy", VacancyView::class.java),
+            routerLink(getTranslation("app.main"), MainView::class.java),
+            routerLink(getTranslation("app.map"), MapView::class.java),
+            routerLink(getTranslation("app.vacancy"), VacancyView::class.java),
         )
         tabs.addThemeVariants(TabsVariant.LUMO_CENTERED)
         tabs.style["margin"] = "0 auto"

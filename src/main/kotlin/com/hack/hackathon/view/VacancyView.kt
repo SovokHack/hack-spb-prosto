@@ -26,9 +26,9 @@ class VacancyView(
     val grid = Grid<JSONObject>(JSONObject::class.java, false)
     val filters = Filters()
     init {
-        val experienceFilter = ComboBox<VacancyExperience>("Опыт")
-        val scheduleFilter = ComboBox<VacancySchedule>("График")
-        val employmentTypeFilter = ComboBox<VacancyEmploymentType>("Тип занятости")
+        val experienceFilter = ComboBox<VacancyExperience>(getTranslation("app.vacancy.experience"))
+        val scheduleFilter = ComboBox<VacancySchedule>(getTranslation("app.vacancy.schedule"))
+        val employmentTypeFilter = ComboBox<VacancyEmploymentType>(getTranslation("app.vacancy.employment.type"))
         experienceFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
         scheduleFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
         employmentTypeFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
