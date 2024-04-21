@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -21,11 +23,22 @@ public class WifiExternalService {
     private final RestTemplate restTemplate;
     private final PeterburgConfig peterburgConfig;
 
-    public List<WifiDto> getWifiInfo(int page, int size) {
+    public WiFiDtoList getWifiInfo(int page, int size) {
         ResponseEntity<WiFiDtoList> response = restTemplate.getForEntity(peterburgConfig.getWifiUrl(), WiFiDtoList.class,
                 Map.of("page", page,
                         "size", size)
         );
-        return response.getBody().getResults();
+        return response.getBody();
     }
+
+    public Stream<WifiDto> fetchAll() {
+        var response = getWifiInfo(1, 100);
+        var list = response.getResults().stream();
+        for (int i = 2; response.getNext() != null; i ++) {
+            response = getWifiInfo(i, 100);
+            list = Stream.concat(list, response.getResults().stream());
+        }
+        return list;
+    }
+
 }

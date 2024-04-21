@@ -54,7 +54,7 @@ class VacancyView(
             WebStorage.setItem("employmentTypeFilter", it.value?.name)
             setItems()
         }
-        grid.addComponentColumn { VacancyCardView(it) }
+        grid.addComponentColumn { VacancyCardView(it) }.setWidth("90vw")
         val verticalLayout = VerticalLayout()
         val layout = HorizontalLayout(employmentTypeFilter, scheduleFilter, experienceFilter)
         verticalLayout.add(layout, grid)

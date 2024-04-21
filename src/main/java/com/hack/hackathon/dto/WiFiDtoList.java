@@ -7,4 +7,5 @@ import java.util.List;
 @Data
 public class WiFiDtoList {
     private List<WifiDto> results;
+    private String next;
 }
