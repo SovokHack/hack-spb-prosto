@@ -67,8 +67,12 @@ public class MapView
     Checkbox externalEventsCheckBox = new Checkbox();
     Button addButton = new Button();
 
-    public MapView(EventExternalService eventExternalService, SecurityService securityService, EventService eventService, WifiExternalService wifiExternalService,
-                   RoutingService routingService) {
+    List<MarkerFeature> routeMarkers;
+
+    public MapView(
+            EventExternalService eventExternalService, SecurityService securityService, EventService eventService,
+            WifiExternalService wifiExternalService,
+            RoutingService routingService) {
         this.eventExternalService = eventExternalService;
         this.eventService = eventService;
         this.wifiExternalService = wifiExternalService;
@@ -79,7 +83,7 @@ public class MapView
         textStyle.setStroke("#fdf4ff", 3);
         textStyle.setFill("#701a75");
         textStyle.setTextAlign(TextStyle.TextAlign.LEFT);
-        textStyle.setOffset(22, -18);
+        textStyle.setOffset(22, - 18);
 
         clickedMarker = new MarkerFeature();
         clickedMarker.setText("Here");
@@ -102,7 +106,9 @@ public class MapView
             eventList.forEach(
                     eventExternal -> {
                         eventExternal.setType(EventType.EXTERNAL);
-                        MarkerFeature markerFeature = new MarkerFeature(eventExternal.getCoordinate() == null ? new Coordinate(30.32F, 59.97F) : new Coordinate(eventExternal.getCoordinate().getX(), eventExternal.getCoordinate().getY()));
+                        MarkerFeature markerFeature = new MarkerFeature(
+                                eventExternal.getCoordinate() == null ? new Coordinate(30.32F, 59.97F) : new Coordinate(
+                                        eventExternal.getCoordinate().getX(), eventExternal.getCoordinate().getY()));
                         markerFeature.setId(eventExternal.getId().toString());
                         scheduleEventMarkers.add(markerFeature);
                     });
@@ -120,7 +126,8 @@ public class MapView
                                     externalEventsMarkers.add(markerFeature);
                                 });
 
-            scheduleEventMarkers.forEach(f -> {f.setDraggable(true);
+            scheduleEventMarkers.forEach(f -> {
+                f.setDraggable(true);
                 map.getFeatureLayer().addFeature(f);
             });
         });
@@ -131,7 +138,13 @@ public class MapView
         Icon.Options usFlagIconOptions = new Icon.Options();
         usFlagIconOptions.setImg(streamResource);
 
-        List<MarkerFeature> wifiSpotsMarkers = wifiExternalService.fetchAll().map(e -> new MarkerFeature(new Coordinate(e.getCoordinates().get(1), e.getCoordinates().get(0)), new Icon(usFlagIconOptions))).toList(); //new ArrayList<>(List.of(new MarkerFeature(new Coordinate(30.31, 59.93), new Icon(usFlagIconOptions))));
+        List<MarkerFeature> wifiSpotsMarkers = wifiExternalService.fetchAll()
+                                                                  .map(e -> new MarkerFeature(
+                                                                          new Coordinate(e.getCoordinates().get(1),
+                                                                                         e.getCoordinates().get(0)),
+                                                                          new Icon(usFlagIconOptions)))
+                                                                  .toList(); //new ArrayList<>(List.of(new
+        // MarkerFeature(new Coordinate(30.31, 59.93), new Icon(usFlagIconOptions))));
 
         Dialog dialog = new Dialog();
 
@@ -141,7 +154,12 @@ public class MapView
             dialog.add(eventExternalService.getById(Long.valueOf(event.getFeature().getId())).getTitle());
             Button button = new Button("Add", e -> {
                 var tmp = eventExternalService.getById(Long.valueOf(event.getFeature().getId()));
-                eventService.save(new Event(null, tmp.getTitle(), tmp.getOrganizerAddress(), EventType.OFFLINE, tmp.getPeriods().get(0).getLower(), tmp.getPeriods().get(0).getUpper(), new com.hack.hackathon.entity.Coordinate(tmp.getCoordinates().get(1).floatValue(), tmp.getCoordinates().get(0).floatValue(), tmp.getOrganizerAddress()), tmp.getId().toString(), null, null));
+                eventService.save(new Event(null, tmp.getTitle(), tmp.getOrganizerAddress(), EventType.OFFLINE,
+                                            tmp.getPeriods().get(0).getLower(), tmp.getPeriods().get(0).getUpper(),
+                                            new com.hack.hackathon.entity.Coordinate(
+                                                    tmp.getCoordinates().get(1).floatValue(),
+                                                    tmp.getCoordinates().get(0).floatValue(),
+                                                    tmp.getOrganizerAddress()), tmp.getId().toString(), null, null));
 
                 List<Event> eventList = eventExternalService.retrieveSchedule(
                         securityService.getAuthenticatedUser().getGroup(),
@@ -150,7 +168,11 @@ public class MapView
                 eventList.forEach(
                         eventExternal -> {
                             eventExternal.setType(EventType.EXTERNAL);
-                            MarkerFeature markerFeature = new MarkerFeature(eventExternal.getCoordinate() == null ? new Coordinate(30.32F, 59.97F) : new Coordinate(eventExternal.getCoordinate().getX(), eventExternal.getCoordinate().getY()));
+                            MarkerFeature markerFeature = new MarkerFeature(
+                                    eventExternal.getCoordinate() == null ? new Coordinate(30.32F,
+                                                                                           59.97F) : new Coordinate(
+                                            eventExternal.getCoordinate().getX(),
+                                            eventExternal.getCoordinate().getY()));
                             markerFeature.setId(eventExternal.getId().toString());
                             scheduleEventMarkers.add(markerFeature);
                         });
@@ -167,11 +189,12 @@ public class MapView
 
         grid.addItemClickListener(e -> {
             Event event = e.getItem();
-            if (event != null && event.getCoordinate() != null) {
+            if(event != null && event.getCoordinate() != null) {
                 map.setCenter(new Coordinate(event.getCoordinate().getX(), event.getCoordinate().getY()));
                 map.setZoom(14);
 
-                clickedMarker.setCoordinates(new Coordinate(event.getCoordinate().getX(), event.getCoordinate().getY()));
+                clickedMarker.setCoordinates(
+                        new Coordinate(event.getCoordinate().getX(), event.getCoordinate().getY()));
                 map.getFeatureLayer().addFeature(clickedMarker);
             }
         });
@@ -218,13 +241,14 @@ public class MapView
             Event event1 = new Event(null, "Event", "Description", EventType.OFFLINE,
                                      LocalDateTime.of(datePicker.getValue(), LocalTime.now()),
                                      LocalDateTime.of(datePicker.getValue(), LocalTime.now().plusHours(1)),
-                                     new com.hack.hackathon.entity.Coordinate(30.31F, 59.93F, "adr"),  null, null, null);
+                                     new com.hack.hackathon.entity.Coordinate(30.31F, 59.93F, "adr"), null, null, null);
 
             eventList.add(eventService.create(event1));
 
             grid.setItems(eventList).setIdentifierProvider(Event::getId);
 
-            MarkerFeature markerFeature = new MarkerFeature(new Coordinate(event1.getCoordinate().getX(), event1.getCoordinate().getY()));
+            MarkerFeature markerFeature = new MarkerFeature(
+                    new Coordinate(event1.getCoordinate().getX(), event1.getCoordinate().getY()));
             markerFeature.setId(event1.getId().toString());
             markerFeature.setDraggable(true);
 
@@ -254,23 +278,29 @@ public class MapView
     private void setupEventData() {
     }
 
-    private void drawRoute() {
-        List<RouteDto> list = routingService.route(8.681495, 49.414599, 8.687871, 49.420322);
+    private void drawRoute(Double startX, Double startY, Double endX, Double endY) {
+        List<RouteDto> list = routingService.route(startX, startY, endX, endY);
 
-        List<MarkerFeature> routeMarkers = generateMarkersWithInterpolation(list);
+        routeMarkers = generateMarkersWithInterpolation(list);
 
         routeMarkers.forEach(routeMarker -> map.getFeatureLayer().addFeature(routeMarker));
     }
 
-    public static List<MarkerFeature> generateMarkersWithInterpolation(List<RouteDto> list) {
+    public List<MarkerFeature> generateMarkersWithInterpolation(List<RouteDto> list) {
         List<MarkerFeature> routeMarkers = new ArrayList<>();
 
-        for (int i = 0; i < list.size() - 1; i++) {
+        StreamResource streamResource = new StreamResource("route.svg",
+                                                           () -> getClass().getResourceAsStream("/images/route.svg"));
+        Icon.Options usFlagIconOptions = new Icon.Options();
+        usFlagIconOptions.setImg(streamResource);
+
+        for(int i = 0; i < list.size() - 1; i++) {
             RouteDto startPoint = list.get(i);
             RouteDto endPoint = list.get(i + 1);
 
             // Добавляем начальную точку
-            routeMarkers.add(new MarkerFeature(new Coordinate(startPoint.getX(), startPoint.getY())));
+            routeMarkers.add(new MarkerFeature(new Coordinate(startPoint.getX(), startPoint.getY()),
+                                               new Icon(usFlagIconOptions)));
 
             // Проверяем расстояние между точками
             double distanceX = endPoint.getX() - startPoint.getX();
@@ -278,19 +308,21 @@ public class MapView
             double totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
             // Добавляем промежуточные точки
-            if (totalDistance > 0) {
+            if(totalDistance > 0) {
                 int numInterpolatedPoints = 5; // Желаемое количество промежуточных точек
-                for (int j = 1; j <= numInterpolatedPoints; j++) {
+                for(int j = 1; j <= numInterpolatedPoints; j++) {
                     double interpolatedX = startPoint.getX() + j * distanceX / (numInterpolatedPoints + 1);
                     double interpolatedY = startPoint.getY() + j * distanceY / (numInterpolatedPoints + 1);
-                    routeMarkers.add(new MarkerFeature(new Coordinate(interpolatedX, interpolatedY)));
+                    routeMarkers.add(new MarkerFeature(new Coordinate(interpolatedX, interpolatedY),
+                                                       new Icon(usFlagIconOptions)));
                 }
             }
         }
 
         // Добавляем последнюю точку
         RouteDto lastPoint = list.get(list.size() - 1);
-        routeMarkers.add(new MarkerFeature(new Coordinate(lastPoint.getX(), lastPoint.getY())));
+        routeMarkers.add(
+                new MarkerFeature(new Coordinate(lastPoint.getX(), lastPoint.getY()), new Icon(usFlagIconOptions)));
 
         return routeMarkers;
     }
@@ -321,7 +353,6 @@ public class MapView
         horizontalLayout.add(wifiSpotsCheckBox);
         horizontalLayout.add(externalEventsCheckBox);
         horizontalLayout.add(addButton);
-        horizontalLayout.add(new Button("Route", event -> drawRoute()));
 
         add(leftView, rightView);
 
@@ -349,10 +380,13 @@ public class MapView
                 new EventEditView(nameField, startTime, endTime, descriptionField));
         grid.addComponentColumn(this::createEditButton).setWidth("150px").setFlexGrow(0).setEditorComponent(
                 createActionsLayout());
+        grid.addComponentColumn(this::createRouteButton).setWidth("150px").setFlexGrow(0);
 
         binder.forField(nameField).bind(Event::getName, Event::setName);
-        binder.forField(startTime).bind(e -> e.getStartTime().toLocalTime(), (e, localTime) -> e.setStartTime(LocalDateTime.of(datePicker.getValue() ,localTime)));
-        binder.forField(endTime).bind(e -> e.getEndTime().toLocalTime(), (e, localTime) -> e.setEndTime(LocalDateTime.of(datePicker.getValue() ,localTime)));
+        binder.forField(startTime).bind(e -> e.getStartTime().toLocalTime(), (e, localTime) -> e.setStartTime(
+                LocalDateTime.of(datePicker.getValue(), localTime)));
+        binder.forField(endTime).bind(e -> e.getEndTime().toLocalTime(), (e, localTime) -> e.setEndTime(
+                LocalDateTime.of(datePicker.getValue(), localTime)));
 
         binder.forField(descriptionField).bind(Event::getDescription, Event::setDescription);
         editor.setBinder(binder);
@@ -372,6 +406,15 @@ public class MapView
             return null;
 
         }
+        return editButton;
+    }
+
+    private Button createRouteButton(Event event) {
+        Button editButton = new Button("Route");
+        editButton.addClickListener(e -> {
+            routeMarkers.clear();
+            drawRoute(securityService.getAuthenticatedUser().getHomeAddress().getX().doubleValue(), securityService.getAuthenticatedUser().getHomeAddress().getY().doubleValue(),event.getCoordinate().getX().doubleValue(), event.getCoordinate().getY().doubleValue());
+        });
         return editButton;
     }
 

@@ -19,14 +19,14 @@ public class RoutingService {
     private final PeterburgConfig peterburgConfig;
     private final RestTemplate restTemplate;
     public List<RouteDto> route(Double startX, Double startY, Double endX, Double endY) {
-        ResponseEntity<JSONObject> response = restTemplate.getForEntity(peterburgConfig.getRoutingUrl(), JSONObject.class,
+        ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getRoutingUrl(), String.class,
                 Map.of(
                         "startLong", startX,
                         "startLang", startY,
                         "endLong", endX,
                         "endLang", endY
                 ));
-        JSONArray body = response.getBody()
+        JSONArray body = new JSONObject(response.getBody())
                 .getJSONArray("features").getJSONObject(0).getJSONObject("geometry")
                 .getJSONArray("coordinates");
         var result = new ArrayList<RouteDto>();
