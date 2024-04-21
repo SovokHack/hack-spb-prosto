@@ -3,7 +3,7 @@ spring:
     name: hackathon
   datasource:
     username: postgres
-    password: postgres
+    password: scorpion411
     url: jdbc:postgresql://localhost:5432/postgres
   jpa:
     show-sql: true
