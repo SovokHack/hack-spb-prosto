@@ -24,7 +24,7 @@ data class User(
     var username: String,
 
     @NotBlank(message = "Домашний адрес не должен быть пустым") // Используем @NotBlank вместо @NotEmpty
-    var homeAddress: String,
+    @Embedded var homeAddress: Coordinate,
 
     @Id @GeneratedValue
     var id: Long? = null

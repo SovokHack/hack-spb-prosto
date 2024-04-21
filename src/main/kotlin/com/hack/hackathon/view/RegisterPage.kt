@@ -1,9 +1,11 @@
 package com.hack.hackathon.view
 
+import com.hack.hackathon.entity.Coordinate
 import com.hack.hackathon.entity.User
 import com.hack.hackathon.layout.MainLayout
 import com.hack.hackathon.security.Role
 import com.hack.hackathon.security.UserService
+import com.hack.hackathon.service.CoordinateService
 import com.hack.hackathon.service.GroupService
 import com.vaadin.flow.component.UI
 import com.vaadin.flow.component.button.Button
@@ -17,21 +19,25 @@ import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.router.PageTitle
 import  com.vaadin.flow.router.Route
 import com.vaadin.flow.server.auth.AnonymousAllowed
+import java.util.stream.Stream
 
-@PageTitle("Registration")
+@PageTitle("Registration",)
 @Route("reg", layout = MainLayout::class)
 @AnonymousAllowed
 class RegisterPage(
     private val userService: UserService,
     private val groupService: GroupService,
+    private val coordinateService: CoordinateService
 ) : VerticalLayout() {
-    val user = User(Role.STUDENT, "", "", "", "")
+    val user = User(Role.STUDENT, "", "", "", Coordinate())
     init {
-        val usernameField = TextField("username") //TODO props
-        val passwordField = PasswordField("password")
-        val groupField = ComboBox<String>("group")
+        val usernameField = TextField(getTranslation("app.register.username")) //TODO props
+        val passwordField = PasswordField(getTranslation("app.register.password"))
+        val groupField = ComboBox<String>(getTranslation("app.register.group"))
         groupField.setItems(groupService.groups)
-        val homeAddressField = TextField("homeAddress")
+        val homeAddressField = ComboBox<Coordinate>(getTranslation("app.register.homeAddress"))
+        homeAddressField.setItemLabelGenerator { it?.getAddress() }
+        homeAddressField.setItems({if (it.filter.isPresent) coordinateService.query(it.filter.get()).stream() else Stream.empty() },{if (it.filter.isPresent) coordinateService.query(it.filter.get()).size else 0})
         val form = FormLayout()
         val binder = Binder(User::class.java)
         binder.bean = user
@@ -39,7 +45,7 @@ class RegisterPage(
         binder.forField(usernameField).asRequired().withValidator(emptyValidator, "must not be empty").withValidator({username -> !userService.usernameExists(username)}, "username already exists").bind({it.username}, {user, username -> user.username = username})
         binder.forField(groupField).asRequired().withValidator(emptyValidator, "must not be empty").withValidator({group -> groupService.groupExists(group)}, "group already exists").bind({it.group },{user, group -> user.group = group})
         binder.forField(passwordField).asRequired().withValidator(emptyValidator, "must not be empty").bind({ it.password }, { user, pass -> user.password = pass } )
-        binder.forField(homeAddressField).asRequired().withValidator(emptyValidator, "must not be empty").bind({ it.homeAddress }, { user, address -> user.homeAddress = address })
+        binder.forField(homeAddressField).asRequired().bind({ it.homeAddress }, { user, address -> user.homeAddress = address })
         form.add(usernameField, passwordField, groupField, homeAddressField)
         val cancelButton = Button("Cancel") {
             UI.getCurrent().navigate(MainView::class.java)

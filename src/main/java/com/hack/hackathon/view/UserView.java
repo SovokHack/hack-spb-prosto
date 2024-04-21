@@ -16,7 +16,6 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
-import java.util.Collections;
 import java.util.stream.Stream;
 
 //import com.vaadin.flow.server.auth;
@@ -43,10 +42,10 @@ public class UserView extends VerticalLayout {
         BeanValidationBinder<User> binder = new BeanValidationBinder<>(User.class);
         binder.setBean(securityService.getAuthenticatedUser());
 
-        TextField username = new TextField("Имя пользователя");
+        TextField username = new TextField(getTranslation("app.register.username"));
         username.setReadOnly(true);
 
-        ComboBox<Coordinate> homeAddress = new ComboBox<>("Домашний адрес");
+        ComboBox<Coordinate> homeAddress = new ComboBox<>(getTranslation("app.register.homeAddress"));
 
 // Set data items for the ComboBox with a lambda function
         homeAddress.setItems(q -> {
@@ -60,13 +59,13 @@ public class UserView extends VerticalLayout {
         });
         homeAddress.setItemLabelGenerator(it -> {
             if (it != null) {
-                return it.getName();
+                return it.getAddress();
             } else {
                 return null;
             }
         });
 
-        ComboBox<String> group = new ComboBox<>("Группа");
+        ComboBox<String> group = new ComboBox<>(getTranslation("app.register.group"));
         group.setItems(groupService.getGroups());
 
 
@@ -74,10 +73,10 @@ public class UserView extends VerticalLayout {
 
         binder.bind(homeAddress, "homeAddress");
 
-        binder.withValidator(user -> groupService.groupExists(user.getGroup()), "Такой группы нет!").bind(group, "group");
+        binder.withValidator(user -> groupService.groupExists(user.getGroup()), getTranslation("app.error.group.notFound")).bind(group, "group");
 
 
-        Button confirmButton = new Button("Сохранить изменения");
+        Button confirmButton = new Button(getTranslation("app.edited.confirm"));
 
         username.setWidth("600px");
         homeAddress.setWidth("600px");

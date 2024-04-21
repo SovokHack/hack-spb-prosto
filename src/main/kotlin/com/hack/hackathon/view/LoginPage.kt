@@ -24,6 +24,7 @@ class LoginPage(
     private val loginForm = LoginForm()
     init {
             init()
+        loginForm.isForgotPasswordButtonVisible = false
     }
 
     fun init() {
