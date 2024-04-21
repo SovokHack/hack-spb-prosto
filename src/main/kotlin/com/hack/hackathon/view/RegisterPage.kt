@@ -36,6 +36,7 @@ class RegisterPage(
         val groupField = ComboBox<String>(getTranslation("app.register.group"))
         groupField.setItems(groupService.groups)
         val homeAddressField = ComboBox<Coordinate>(getTranslation("app.register.homeAddress"))
+        homeAddressField.setItemLabelGenerator { coor -> coor.getAddress() }
         homeAddressField.setItems({if (it.filter.isPresent) coordinateService.query(it.filter.get()).stream() else Stream.empty() },{if (it.filter.isPresent) coordinateService.query(it.filter.get()).size else 0})
         val form = FormLayout()
         val binder = Binder(User::class.java)
