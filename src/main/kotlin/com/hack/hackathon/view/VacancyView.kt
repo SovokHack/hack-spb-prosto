@@ -8,30 +8,28 @@ import com.hack.hackathon.service.SpecializationService
 import com.hack.hackathon.service.VacancyService
 import com.vaadin.flow.component.combobox.ComboBox
 import com.vaadin.flow.component.grid.Grid
-import com.vaadin.flow.component.html.Div
-import com.vaadin.flow.component.html.H3
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.page.WebStorage
-import com.vaadin.flow.data.binder.Binder
 import com.vaadin.flow.router.Route
-import org.json.JSONArray
+import jakarta.annotation.security.PermitAll
 import org.json.JSONObject
 
+@PermitAll
 @Route("vacancy", layout = MainLayout::class)
 class VacancyView(
     private val specializationService: SpecializationService,
     private val vacancyService: VacancyService,
 ) : VerticalLayout() {
-    val grid = Grid<JSONObject>(JSONObject::class.java)
+    val grid = Grid<JSONObject>(JSONObject::class.java, false)
     val filters = Filters()
     init {
         val experienceFilter = ComboBox<VacancyExperience>("Опыт")
         val scheduleFilter = ComboBox<VacancySchedule>("График")
         val employmentTypeFilter = ComboBox<VacancyEmploymentType>("Тип занятости")
-        experienceFilter.setItemLabelGenerator { it.getName() }
-        scheduleFilter.setItemLabelGenerator { it.getName() }
-        employmentTypeFilter.setItemLabelGenerator { it.getName() }
+        experienceFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
+        scheduleFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
+        employmentTypeFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
 
         WebStorage.getItem("experienceFilter") { if (it != null) experienceFilter.value = VacancyExperience.valueOf(it) }
         WebStorage.getItem("scheduleFilter") { if (it != null) scheduleFilter.value = VacancySchedule.valueOf(it) }
@@ -41,6 +39,10 @@ class VacancyView(
             WebStorage.setItem("experienceFilter", it.value.name)
             setItems()
         }
+
+        experienceFilter.setItems(VacancyExperience.entries)
+        scheduleFilter.setItems(VacancySchedule.entries)
+        employmentTypeFilter.setItems(VacancyEmploymentType.entries)
         scheduleFilter.addValueChangeListener {
             filters.schedule = it.value
             WebStorage.setItem("scheduleFilter", it.value.name)
@@ -52,8 +54,8 @@ class VacancyView(
             setItems()
         }
         grid.setSizeFull()
-        /*grid.addComponentColumn {  }*/
-        val layout = HorizontalLayout(employmentTypeFilter, scheduleFilter, scheduleFilter)
+        grid.addComponentColumn { VacancyCardView(it) }
+        val layout = HorizontalLayout(employmentTypeFilter, scheduleFilter, experienceFilter)
         add(layout)
         add(grid)
 
@@ -61,7 +63,7 @@ class VacancyView(
     }
 
     fun setItems() {
-        grid.setItems(vacancyService.getVacancies(filters.employmentType,filters.experience, filters.schedule).toList() as MutableCollection<JSONObject>)
+        grid.setItems( vacancyService.getVacancies(specializationService.specialization, filters.employmentType,filters.experience, filters.schedule).toList().map { it as JSONObject })
     }
 }
 

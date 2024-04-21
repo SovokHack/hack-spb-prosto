@@ -21,22 +21,24 @@ public class VacancyService {
     private final RestTemplate restTemplate;
     private final PeterburgConfig peterburgConfig;
 
-    public JSONArray getVacancies(VacancyEmploymentType employmentType, VacancyExperience experience, VacancySchedule schedule) {
+    public JSONArray getVacancies(String search, VacancyEmploymentType employmentType, VacancyExperience experience, VacancySchedule schedule) {
         ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getVacanciesUrl(), String.class,
                 Map.of("empType", employmentType.getId(),
                         "experience", experience.getId(),
-                        "schedule", schedule.getId()
+                        "schedule", schedule.getId(),
+                        "search", ""
                 ));
         JSONObject responseObject = new JSONObject(response.getBody());
         JSONArray experiencesArray = responseObject.getJSONArray("results");
         return experiencesArray;
     }
 
-    public int count(VacancyEmploymentType employmentType, VacancyExperience experience, VacancySchedule schedule) {
+    public int count(String search, VacancyEmploymentType employmentType, VacancyExperience experience, VacancySchedule schedule) {
         ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getVacanciesUrl(), String.class,
                 Map.of("empType", employmentType.getId(),
                         "experience", experience.getId(),
-                        "schedule", schedule.getId()
+                        "schedule", schedule.getId(),
+                        "search", search
                 ));
         JSONObject responseObject = new JSONObject(response.getBody());
         return responseObject.getInt("count");

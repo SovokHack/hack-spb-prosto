@@ -1,8 +1,5 @@
 package com.hack.hackathon.enumeration;
 
-import lombok.Getter;
-
-@Getter
 public enum VacancySchedule {
     FULL_DAY(1,"Полный день"),
     SHIFT_SCHEDULE(2, "Сменный график"),
@@ -11,13 +8,20 @@ public enum VacancySchedule {
     WATCH_METHOD(5, "Вахтовый метод")
     ;
 
+    public int getId() {
+        return id;
+    }
+
+    public String getViewName() {
+        return viewName;
+    }
 
     private final int id;
 
-    private final String name;
+    private final String viewName;
 
-    VacancySchedule(int id, String name) {
+    VacancySchedule(int id, String viewName) {
         this.id = id;
-        this.name = name;
+        this.viewName = viewName;
     }
 }
