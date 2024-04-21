@@ -2,9 +2,11 @@ package com.hack.hackathon.view;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.Route;
 import org.json.JSONObject;
 
 import java.awt.*;
+
 
 public class VacancyCardView extends VerticalLayout {
     private final JSONObject json;
@@ -51,10 +53,19 @@ public class VacancyCardView extends VerticalLayout {
 
         //Минимальная з/п
         TextField salaryFrom = new TextField(json.getString("salaryFrom"));
-
         salaryFrom.setReadOnly(true);
+        salaryFrom.setLabel("Минимальная з/п");
 
-        //
+        //Максимальная з/п
+        TextField salaryUpTo = new TextField(json.getString("salaryUpTo"));
+        salaryUpTo.setReadOnly(true);
+        salaryFrom.setLabel("Максимальная з/п");
+
+        //Ссылка на hh.ru
+        TextField url = new TextField(json.getString("hhUrl"));
+        url.setReadOnly(true);
+        url.setLabel("Cсылка на hh.ru");
+
 
 
     }
