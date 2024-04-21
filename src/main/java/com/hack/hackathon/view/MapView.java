@@ -56,8 +56,8 @@ public class MapView
         this.eventExternalService = eventExternalService;
 
         datePicker = new DatePicker(event -> {
-            grid.setItems(eventExternalService.fetchEvents(0L, 100L, event.getValue().atStartOfDay(),
-                                                           event.getValue().atStartOfDay())
+            grid.setItems(eventExternalService.fetchEvents(1L, 10L, event.getValue().atStartOfDay(),
+                                                           event.getValue().atStartOfDay().plusDays(1L))
                                               .stream()
                                               .map(o -> Event.builder()
                                                              .externalId(o.getId().toString())
