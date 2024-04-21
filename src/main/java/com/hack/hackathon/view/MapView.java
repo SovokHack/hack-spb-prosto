@@ -6,6 +6,7 @@ import com.hack.hackathon.enumeration.EventType;
 import com.hack.hackathon.layout.MainLayout;
 import com.hack.hackathon.security.SecurityService;
 import com.hack.hackathon.service.EventExternalService;
+import com.hack.hackathon.service.EventService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -46,9 +47,12 @@ import java.util.stream.Stream;
 @PermitAll
 @PageTitle("Map")
 @Route(value = "map", layout = MainLayout.class)
-public class MapView extends HorizontalLayout {
+public class MapView
+        extends HorizontalLayout {
     private final EventExternalService eventExternalService;
     private final SecurityService securityService;
+    private final EventService eventService;
+
     Grid<Event> grid = new Grid<>(Event.class, false);
     Map map = new Map();
     Binder<Event> binder = new Binder<>(Event.class);
@@ -57,19 +61,53 @@ public class MapView extends HorizontalLayout {
     DatePicker datePicker;
     Checkbox wifiSpotsCheckBox = new Checkbox();
     Checkbox externalEventsCheckBox = new Checkbox();
+    Button addButton = new Button();
 
-    public MapView(EventExternalService eventExternalService, SecurityService securityService) {
+    public MapView(EventExternalService eventExternalService, SecurityService securityService, EventService eventService) {
         this.eventExternalService = eventExternalService;
-        datePicker = new DatePicker(event -> {
-            var data = grid.setItems(eventExternalService.retrieveSchedule(securityService.getAuthenticatedUser().getGroup(), LocalDateTime.of(event.getValue(), LocalTime.now())));
+        this.eventService = eventService;
+
+        List<MarkerFeature> eventMarkers = new ArrayList<>();
+
+        List<MarkerFeature> externalEventsMarkers = new ArrayList<>();
+
+        List<MarkerFeature> scheduleEventMarkers = new ArrayList<>();
+
+        datePicker = new DatePicker(LocalDate.now(), event -> {
+            scheduleEventMarkers.forEach(f -> map.getFeatureLayer().removeFeature(f));
+            scheduleEventMarkers.clear();
+
+            List<Event> eventList = eventExternalService.retrieveSchedule(
+                    securityService.getAuthenticatedUser().getGroup(),
+                    LocalDateTime.of(event.getValue(), LocalTime.now()));
+
+            eventList.forEach(
+                    eventExternal -> {
+                        eventExternal.setType(EventType.EXTERNAL);
+                        MarkerFeature markerFeature = new MarkerFeature(eventExternal.getCoordinate() == null ? new Coordinate(30.32F, 59.97F) : new Coordinate(eventExternal.getCoordinate().getX(), eventExternal.getCoordinate().getY()));
+                        markerFeature.setId(eventExternal.getId().toString());
+                        scheduleEventMarkers.add(markerFeature);
+                    });
+
+            var data = grid.setItems(eventList);
             data.setIdentifierProvider(Event::getId);
+
+            eventExternalService.fetchEvents(0L, 20L, LocalDateTime.of(event.getValue(), LocalTime.now()), null)
+                                .forEach(externalEventDto -> {
+                                    MarkerFeature markerFeature = new MarkerFeature(
+                                            new Coordinate(externalEventDto.getCoordinates().get(1),
+                                                           externalEventDto.getCoordinates().get(0)));
+                                    markerFeature.setId(externalEventDto.getId().toString());
+                                    markerFeature.setText(externalEventDto.getTitle());
+                                    externalEventsMarkers.add(markerFeature);
+                                });
+
+            scheduleEventMarkers.forEach(f -> {f.setDraggable(true);
+                map.getFeatureLayer().addFeature(f);});
         });
         this.securityService = securityService;
 
-
         List<MarkerFeature> wifiSpotsMarkers = new ArrayList<>();
-
-        List<MarkerFeature> externalEventsMarkers = new ArrayList<>();
 
         Dialog dialog = new Dialog();
 
@@ -77,9 +115,9 @@ public class MapView extends HorizontalLayout {
             dialog.open();
         });//eventExternalService.getById(Long.valueOf(event.getFeature().getId()));
 
-
         grid.getDataProvider().fetch(new Query<>()).forEach(event -> {
-            MarkerFeature markerFeature = new MarkerFeature(new Coordinate(event.getCoordinate().getX(), event.getCoordinate().getY()));
+            MarkerFeature markerFeature = new MarkerFeature(new Coordinate(event.getCoordinate().getX(), event
+            .getCoordinate().getY()));
             markerFeature.setId(event.getExternalId());
             markerFeature.setText(event.getName());
             externalEventsMarkers.add(markerFeature);
@@ -87,15 +125,57 @@ public class MapView extends HorizontalLayout {
 
         externalEventsCheckBox.setLabel("Show External Events");
         externalEventsCheckBox.addValueChangeListener(event -> {
-            if (event.getValue()) {
+            if(event.getValue()) {
                 externalEventsMarkers.forEach(markerFeature -> map.getFeatureLayer().addFeature(markerFeature));
-            } else {
+            }
+            else {
                 externalEventsMarkers.forEach(markerFeature -> map.getFeatureLayer().removeFeature(markerFeature));
             }
         });
 
         wifiSpotsCheckBox.setLabel("Show WiFi Spots");
         wifiSpotsCheckBox.addValueChangeListener(event -> {
+        });
+
+        addButton.setText("New");
+        addButton.addClickListener(event -> {
+            List<Event> eventList = eventExternalService.retrieveSchedule(
+                    securityService.getAuthenticatedUser().getGroup(),
+                    LocalDateTime.of(datePicker.getValue(), LocalTime.now()));
+
+            eventList.forEach(
+                    eventExternal -> {
+                        eventExternal.setType(EventType.EXTERNAL);
+                        MarkerFeature markerFeature = new MarkerFeature(new Coordinate(30.32F, 59.97F));
+                        markerFeature.setId(eventExternal.getId().toString());
+                        scheduleEventMarkers.add(markerFeature);
+                    });
+
+            Event event1 = new Event(null, "Event", "Description", EventType.OFFLINE,
+                                     LocalDateTime.of(datePicker.getValue(), LocalTime.now()),
+                                     LocalDateTime.of(datePicker.getValue(), LocalTime.now().plusHours(1)),
+                                     new com.hack.hackathon.entity.Coordinate(5F, 5F, "adr"),  null, null, null);
+
+            eventList.add(eventService.create(event1));
+
+            grid.setItems(eventList).setIdentifierProvider(Event::getId);
+
+            MarkerFeature markerFeature = new MarkerFeature(new Coordinate(event1.getCoordinate().getX(), event1.getCoordinate().getY()));
+            markerFeature.setId(event1.getId().toString());
+            markerFeature.setDraggable(true);
+
+            eventMarkers.add(markerFeature);
+            map.getFeatureLayer().addFeature(markerFeature);
+        });
+
+        map.addFeatureDropListener(event -> {
+            MarkerFeature droppedMarker = (MarkerFeature) event.getFeature();
+            Coordinate endCoordinates = event.getCoordinate();
+
+            Event event1 = eventService.getById(Long.valueOf(droppedMarker.getId()));
+            event1.setCoordinate(new com.hack.hackathon.entity.Coordinate(
+                    (float) endCoordinates.getX(), (float) endCoordinates.getY(), ""));
+            eventService.save(event1);
         });
 
         setupEventData();
@@ -105,7 +185,8 @@ public class MapView extends HorizontalLayout {
 
         Coordinate germanOfficeCoordinates = new Coordinate(13.45489, 52.51390);
 
-        StreamResource streamResource = new StreamResource("wifi.svg", () -> getClass().getResourceAsStream("/images/wifi.svg"));
+        StreamResource streamResource = new StreamResource("wifi.svg",
+                                                           () -> getClass().getResourceAsStream("/images/wifi.svg"));
         Icon.Options usFlagIconOptions = new Icon.Options();
         usFlagIconOptions.setImg(streamResource);
         Icon usFlagIcon = new Icon(usFlagIconOptions);
@@ -142,6 +223,7 @@ public class MapView extends HorizontalLayout {
         horizontalLayout.add(datePicker);
         horizontalLayout.add(wifiSpotsCheckBox);
         horizontalLayout.add(externalEventsCheckBox);
+        horizontalLayout.add(addButton);
 
         add(leftView, rightView);
 
@@ -165,12 +247,15 @@ public class MapView extends HorizontalLayout {
         TimePicker endTime = new TimePicker();
         TextField descriptionField = new TextField();
 
-        grid.addComponentColumn(EventView::new).setEditorComponent(new EventEditView(nameField, startTime, endTime, descriptionField));
-        grid.addComponentColumn(this::createEditButton).setWidth("150px").setFlexGrow(0).setEditorComponent(createActionsLayout());
+        grid.addComponentColumn(EventView::new).setEditorComponent(
+                new EventEditView(nameField, startTime, endTime, descriptionField));
+        grid.addComponentColumn(this::createEditButton).setWidth("150px").setFlexGrow(0).setEditorComponent(
+                createActionsLayout());
 
         binder.forField(nameField).bind(Event::getName, Event::setName);
-        //binder.forField(startTime).bind(Event::getStartTime, Event::setStartTime);
-        //binder.forField(endTime).bind(Event::getEndTime, Event::setEndTime);
+        binder.forField(startTime).bind(e -> e.getStartTime().toLocalTime(), (e, localTime) -> e.setStartTime(LocalDateTime.of(datePicker.getValue() ,localTime)));
+        binder.forField(endTime).bind(e -> e.getEndTime().toLocalTime(), (e, localTime) -> e.setEndTime(LocalDateTime.of(datePicker.getValue() ,localTime)));
+
         binder.forField(descriptionField).bind(Event::getDescription, Event::setDescription);
         editor.setBinder(binder);
         editor.setBuffered(true);
@@ -179,13 +264,13 @@ public class MapView extends HorizontalLayout {
     private Button createEditButton(Event event) {
         Button editButton = new Button("Edit");
         editButton.addClickListener(e -> {
-            if (editor.isOpen()) {
+            if(editor.isOpen()) {
                 editor.cancel();
             }
             binder.setBean(event);
             editor.editItem(event);
         });
-        if (event.getType().equals(EventType.EXTERNAL)) {
+        if(event.getType().equals(EventType.EXTERNAL)) {
             return null;
 
         }
@@ -194,6 +279,7 @@ public class MapView extends HorizontalLayout {
 
     private VerticalLayout createActionsLayout() {
         Button saveButton = new Button("Save", e -> {
+            eventService.save(editor.getItem());
             editor.save();
             editor.cancel();
         });
@@ -210,15 +296,16 @@ public class MapView extends HorizontalLayout {
             Event targetEvent = e.getDropTargetItem().orElse(null);
             GridDropLocation dropLocation = e.getDropLocation();
 
-            if (targetEvent == null || draggedItem.equals(targetEvent)) {
+            if(targetEvent == null || draggedItem.equals(targetEvent)) {
                 return;
             }
 
             dataView.removeItem(draggedItem);
 
-            if (dropLocation == GridDropLocation.BELOW) {
+            if(dropLocation == GridDropLocation.BELOW) {
                 dataView.addItemAfter(draggedItem, targetEvent);
-            } else {
+            }
+            else {
                 dataView.addItemBefore(draggedItem, targetEvent);
             }
         });
