@@ -143,7 +143,7 @@ public class MapView
                 map.setCenter(new Coordinate(event.getCoordinate().getX(), event.getCoordinate().getY()));
                 map.setZoom(14);
 
-                map.getFeatureLayer().getFeatures().stream().filter(filtr -> filtr.getId().equals(event.getExternalId())).toList().get(0).getStyle().setFill(new Fill("#FF0000"));
+                eventMarkers.get(0).getStyle().setFill(new Fill("#FF0000"));
             }
         });
 
