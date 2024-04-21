@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -22,12 +23,15 @@ public class VacancyService {
     private final PeterburgConfig peterburgConfig;
 
     public JSONArray getVacancies(String search, VacancyEmploymentType employmentType, VacancyExperience experience, VacancySchedule schedule) {
-        ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getVacanciesUrl(), String.class,
-                Map.of("empType", employmentType.getId(),
-                        "experience", experience.getId(),
-                        "schedule", schedule.getId(),
-                        "search", ""
-                ));
+        StringBuilder suffix = new StringBuilder("");
+        Optional.ofNullable(employmentType).map(VacancyEmploymentType::getId).ifPresent(it -> suffix.append("&employment_type=").append(it));
+        Optional.ofNullable(experience).map(VacancyExperience::getId).ifPresent(it -> suffix.append("&experience=").append(it));
+        Optional.ofNullable(schedule).map(VacancySchedule::getId).ifPresent(it -> suffix.append("&schedule=").append(it));
+        if (!suffix.isEmpty()) {
+            suffix.deleteCharAt(0);
+            suffix.replace(0, 0, "?");
+        }
+        ResponseEntity<String> response = restTemplate.getForEntity(peterburgConfig.getVacanciesUrl() + suffix, String.class, Optional.ofNullable(employmentType).map(VacancyEmploymentType::getId).orElse(null), Optional.ofNullable(experience).map(VacancyExperience::getId).orElse(null), Optional.ofNullable(schedule).map(VacancySchedule::getId).orElse(null));
         JSONObject responseObject = new JSONObject(response.getBody());
         JSONArray experiencesArray = responseObject.getJSONArray("results");
         return experiencesArray;

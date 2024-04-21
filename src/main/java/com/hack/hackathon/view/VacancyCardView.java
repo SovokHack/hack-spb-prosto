@@ -60,21 +60,28 @@ public class VacancyCardView extends VerticalLayout {
         TextField education = new TextField(json.getJSONObject("educationLevel").getString("name"));
         education.setReadOnly(true);
         education.setLabel("Требуемый уровень образования");
-
-        //Минимальная з/п
-        TextField salaryFrom = new TextField(json.getString("salaryFrom"));
-        salaryFrom.setReadOnly(true);
-        salaryFrom.setLabel("Минимальная з/п");
+        add(jobName, jobDescription, companyName, employmentType, scheduleField);
+        if (!json.isNull("salaryFrom")) {
+            //Минимальная з/п
+            TextField salaryFrom = new TextField(String.valueOf(json.getInt("salaryFrom")));
+            salaryFrom.setReadOnly(true);
+            salaryFrom.setLabel("Минимальная з/п");
+            add(salaryFrom);
+        }
 
         //Максимальная з/п
-        TextField salaryUpTo = new TextField(json.getString("salaryUpTo"));
-        salaryUpTo.setReadOnly(true);
-        salaryFrom.setLabel("Максимальная з/п");
+        if (!json.isNull("salaryUpTo")) {
+            TextField salaryUpTo = new TextField(String.valueOf(json.getInt("salaryUpTo")));
+            salaryUpTo.setReadOnly(true);
+            salaryUpTo.setLabel("Максимальная з/п");
+            add(salaryUpTo);
+        }
 
         //Ссылка на hh.ru
         TextField url = new TextField(json.getString("hhUrl"));
         url.setReadOnly(true);
         url.setLabel("Cсылка на hh.ru");
+        add(url);
 
 
 

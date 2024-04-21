@@ -14,5 +14,6 @@ public class PeterburgConfig {
     private final String groupsUrl = "https://digital.etu.ru/api/mobile/groups?studyYears=2021-2022";
     private final String coordsUrl = "https://geocode.gate.petersburg.ru/autocomplete/universal?s={query}";
     private final String scheduleUrl = "https://digital.etu.ru/api/mobile/schedule?groupNumber={group}";
-    private final String vacanciesUrl = "https://researchinspb.ru/api/v1/public/vacancy/?search={search}&employment_type={empType}&schedule={schedule}&experience={experience}";
+    private final String vacanciesUrl = "https://researchinspb.ru/api/v1/public/vacancy/";
+    private final String wifiUrl = "https://spb-classif.gate.petersburg.ru/api/v2/datasets/195/versions/latest/data/417/";
 }

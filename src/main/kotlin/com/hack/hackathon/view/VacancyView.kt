@@ -32,12 +32,12 @@ class VacancyView(
         scheduleFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
         employmentTypeFilter.setItemLabelGenerator { return@setItemLabelGenerator it.viewName }
 
-        WebStorage.getItem("experienceFilter") { if (it != null) experienceFilter.value = VacancyExperience.valueOf(it) }
-        WebStorage.getItem("scheduleFilter") { if (it != null) scheduleFilter.value = VacancySchedule.valueOf(it) }
-        WebStorage.getItem("employmentTypeFilter") { if (it != null) employmentTypeFilter.value = VacancyEmploymentType.valueOf(it) }
+        WebStorage.getItem("experienceFilter") { if (it != null && it.isNotBlank()) experienceFilter.value = VacancyExperience.valueOf(it) }
+        WebStorage.getItem("scheduleFilter") { if (it != null && it.isNotBlank()) scheduleFilter.value = VacancySchedule.valueOf(it) }
+        WebStorage.getItem("employmentTypeFilter") { if (it != null && it.isNotBlank()) employmentTypeFilter.value = VacancyEmploymentType.valueOf(it) }
         experienceFilter.addValueChangeListener {
             filters.experience = it.value
-            WebStorage.setItem("experienceFilter", it.value.name)
+            WebStorage.setItem("experienceFilter", it.value?.name)
             setItems()
         }
 
@@ -46,19 +46,19 @@ class VacancyView(
         employmentTypeFilter.setItems(VacancyEmploymentType.entries)
         scheduleFilter.addValueChangeListener {
             filters.schedule = it.value
-            WebStorage.setItem("scheduleFilter", it.value.name)
+            WebStorage.setItem("scheduleFilter", it.value?.name)
             setItems()
         }
         employmentTypeFilter.addValueChangeListener {
             filters.employmentType = it.value
-            WebStorage.setItem("employmentTypeFilter", it.value.name)
+            WebStorage.setItem("employmentTypeFilter", it.value?.name)
             setItems()
         }
-        grid.setSizeFull()
         grid.addComponentColumn { VacancyCardView(it) }
+        val verticalLayout = VerticalLayout()
         val layout = HorizontalLayout(employmentTypeFilter, scheduleFilter, experienceFilter)
-        add(layout)
-        add(grid)
+        verticalLayout.add(layout, grid)
+        add(verticalLayout)
 
 
     }
