@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.*;
@@ -35,11 +36,11 @@ public class EventExternalService {
     private final EventService eventService;
 
     public List<ExternalEventDto> fetchEvents(Long page, Long size, LocalDateTime periodAfter, LocalDateTime periodBefore) {
-        ResponseEntity<ExternalDto> responseEntity = restTemplate.exchange(peterburgConfig.getAllEventsUrl(),  HttpMethod.GET, new HttpEntity<>(new ExternalDto()), ExternalDto.class, Map.of(
+        ResponseEntity<ExternalDto> responseEntity = restTemplate.getForEntity(peterburgConfig.getAllEventsUrl(), ExternalDto.class, Map.of(
                 "page", page,
                 "size", size,
-                "periodAfter", periodAfter.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")),
-                "periodBefore", periodBefore.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"))
+                "periodAfter", periodAfter.atOffset(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX")),
+                "periodBefore", periodBefore.atOffset(ZoneOffset.ofHours(3)).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"))
         ));
         log.info("res {}", responseEntity.getBody());
         return Objects.requireNonNull(responseEntity.getBody()).getResults();
