@@ -339,7 +339,7 @@ public class MapView
         leftView.setSpacing(false);
 
         VerticalLayout rightView = new VerticalLayout();
-        rightView.setWidth("50%");
+        rightView.setWidth("60%");
         rightView.setMinHeight("90vh");
         rightView.setPadding(false);
         rightView.setSpacing(false);
@@ -412,7 +412,9 @@ public class MapView
     private Button createRouteButton(Event event) {
         Button editButton = new Button("Route");
         editButton.addClickListener(e -> {
+            routeMarkers.forEach(route -> map.getFeatureLayer().removeFeature(route));
             routeMarkers.clear();
+
             drawRoute(securityService.getAuthenticatedUser().getHomeAddress().getX().doubleValue(), securityService.getAuthenticatedUser().getHomeAddress().getY().doubleValue(),event.getCoordinate().getX().doubleValue(), event.getCoordinate().getY().doubleValue());
         });
         return editButton;
