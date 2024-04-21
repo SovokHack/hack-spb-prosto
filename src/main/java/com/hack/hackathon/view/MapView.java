@@ -1,12 +1,14 @@
 package com.hack.hackathon.view;
 
 
+import com.hack.hackathon.dto.RouteDto;
 import com.hack.hackathon.entity.Event;
 import com.hack.hackathon.enumeration.EventType;
 import com.hack.hackathon.layout.MainLayout;
 import com.hack.hackathon.security.SecurityService;
 import com.hack.hackathon.service.EventExternalService;
 import com.hack.hackathon.service.EventService;
+import com.hack.hackathon.service.RoutingService;
 import com.hack.hackathon.service.WifiExternalService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -20,9 +22,7 @@ import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
-import com.vaadin.flow.component.map.configuration.Feature;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
-import com.vaadin.flow.component.map.configuration.style.Fill;
 import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -30,11 +30,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.BackEndDataProvider;
-import com.vaadin.flow.data.provider.CallbackDataProvider;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteData;
 import com.vaadin.flow.server.StreamResource;
 import jakarta.annotation.security.PermitAll;
 import lombok.AllArgsConstructor;
@@ -46,7 +44,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @PermitAll
 @PageTitle("Map")
@@ -57,6 +54,7 @@ public class MapView
     private final SecurityService securityService;
     private final EventService eventService;
     private final WifiExternalService wifiExternalService;
+    private final RoutingService routingService;
 
     Grid<Event> grid = new Grid<>(Event.class, false);
     Map map = new Map();
@@ -69,10 +67,12 @@ public class MapView
     Checkbox externalEventsCheckBox = new Checkbox();
     Button addButton = new Button();
 
-    public MapView(EventExternalService eventExternalService, SecurityService securityService, EventService eventService, WifiExternalService wifiExternalService) {
+    public MapView(EventExternalService eventExternalService, SecurityService securityService, EventService eventService, WifiExternalService wifiExternalService,
+                   RoutingService routingService) {
         this.eventExternalService = eventExternalService;
         this.eventService = eventService;
         this.wifiExternalService = wifiExternalService;
+        this.routingService = routingService;
 
         TextStyle textStyle = new TextStyle();
         textStyle.setFont("bold 16px sans-serif");
@@ -139,7 +139,7 @@ public class MapView
             dialog.removeAll();
             dialog.getFooter().removeAll();
             dialog.add(eventExternalService.getById(Long.valueOf(event.getFeature().getId())).getTitle());
-            Button button = new Button(getTranslation("app.create"), e -> {
+            Button button = new Button("Add", e -> {
                 var tmp = eventExternalService.getById(Long.valueOf(event.getFeature().getId()));
                 eventService.save(new Event(null, tmp.getTitle(), tmp.getOrganizerAddress(), EventType.OFFLINE, tmp.getPeriods().get(0).getLower(), tmp.getPeriods().get(0).getUpper(), new com.hack.hackathon.entity.Coordinate(tmp.getCoordinates().get(1).floatValue(), tmp.getCoordinates().get(0).floatValue(), tmp.getOrganizerAddress()), tmp.getId().toString(), null, null));
 
@@ -181,25 +181,27 @@ public class MapView
             map.getFeatureLayer().removeFeature(clickedMarker);
         });
 
-        externalEventsCheckBox.setLabel(getTranslation("app.external.events.show"));
+        externalEventsCheckBox.setLabel("Show External Events");
         externalEventsCheckBox.addValueChangeListener(event -> {
-            if (event.getValue()) {
+            if(event.getValue()) {
                 externalEventsMarkers.forEach(markerFeature -> map.getFeatureLayer().addFeature(markerFeature));
-            } else {
+            }
+            else {
                 externalEventsMarkers.forEach(markerFeature -> map.getFeatureLayer().removeFeature(markerFeature));
             }
         });
 
-        wifiSpotsCheckBox.setLabel(getTranslation("app.wifi.spots.show"));
+        wifiSpotsCheckBox.setLabel("Show WiFi Spots");
         wifiSpotsCheckBox.addValueChangeListener(event -> {
-            if (event.getValue()) {
+            if(event.getValue()) {
                 wifiSpotsMarkers.forEach(markerFeature -> map.getFeatureLayer().addFeature(markerFeature));
-            } else {
+            }
+            else {
                 wifiSpotsMarkers.forEach(markerFeature -> map.getFeatureLayer().removeFeature(markerFeature));
             }
         });
 
-        addButton.setText(getTranslation("app.add"));
+        addButton.setText("New");
         addButton.addClickListener(event -> {
             List<Event> eventList = eventExternalService.retrieveSchedule(
                     securityService.getAuthenticatedUser().getGroup(),
@@ -214,9 +216,9 @@ public class MapView
                     });
 
             Event event1 = new Event(null, "Event", "Description", EventType.OFFLINE,
-                    LocalDateTime.of(datePicker.getValue(), LocalTime.now()),
-                    LocalDateTime.of(datePicker.getValue(), LocalTime.now().plusHours(1)),
-                    new com.hack.hackathon.entity.Coordinate(30.31F, 59.93F, "adr"), null, null, null);
+                                     LocalDateTime.of(datePicker.getValue(), LocalTime.now()),
+                                     LocalDateTime.of(datePicker.getValue(), LocalTime.now().plusHours(1)),
+                                     new com.hack.hackathon.entity.Coordinate(30.31F, 59.93F, "adr"),  null, null, null);
 
             eventList.add(eventService.create(event1));
 
@@ -252,6 +254,47 @@ public class MapView
     private void setupEventData() {
     }
 
+    private void drawRoute() {
+        List<RouteDto> list = routingService.route(8.681495, 49.414599, 8.687871, 49.420322);
+
+        List<MarkerFeature> routeMarkers = generateMarkersWithInterpolation(list);
+
+        routeMarkers.forEach(routeMarker -> map.getFeatureLayer().addFeature(routeMarker));
+    }
+
+    public static List<MarkerFeature> generateMarkersWithInterpolation(List<RouteDto> list) {
+        List<MarkerFeature> routeMarkers = new ArrayList<>();
+
+        for (int i = 0; i < list.size() - 1; i++) {
+            RouteDto startPoint = list.get(i);
+            RouteDto endPoint = list.get(i + 1);
+
+            // Добавляем начальную точку
+            routeMarkers.add(new MarkerFeature(new Coordinate(startPoint.getX(), startPoint.getY())));
+
+            // Проверяем расстояние между точками
+            double distanceX = endPoint.getX() - startPoint.getX();
+            double distanceY = endPoint.getY() - startPoint.getY();
+            double totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+            // Добавляем промежуточные точки
+            if (totalDistance > 0) {
+                int numInterpolatedPoints = 5; // Желаемое количество промежуточных точек
+                for (int j = 1; j <= numInterpolatedPoints; j++) {
+                    double interpolatedX = startPoint.getX() + j * distanceX / (numInterpolatedPoints + 1);
+                    double interpolatedY = startPoint.getY() + j * distanceY / (numInterpolatedPoints + 1);
+                    routeMarkers.add(new MarkerFeature(new Coordinate(interpolatedX, interpolatedY)));
+                }
+            }
+        }
+
+        // Добавляем последнюю точку
+        RouteDto lastPoint = list.get(list.size() - 1);
+        routeMarkers.add(new MarkerFeature(new Coordinate(lastPoint.getX(), lastPoint.getY())));
+
+        return routeMarkers;
+    }
+
     private void setupLayout() {
         setWidth("100%");
         setPadding(false);
@@ -278,6 +321,7 @@ public class MapView
         horizontalLayout.add(wifiSpotsCheckBox);
         horizontalLayout.add(externalEventsCheckBox);
         horizontalLayout.add(addButton);
+        horizontalLayout.add(new Button("Route", event -> drawRoute()));
 
         add(leftView, rightView);
 
@@ -307,8 +351,8 @@ public class MapView
                 createActionsLayout());
 
         binder.forField(nameField).bind(Event::getName, Event::setName);
-        binder.forField(startTime).bind(e -> e.getStartTime().toLocalTime(), (e, localTime) -> e.setStartTime(LocalDateTime.of(datePicker.getValue(), localTime)));
-        binder.forField(endTime).bind(e -> e.getEndTime().toLocalTime(), (e, localTime) -> e.setEndTime(LocalDateTime.of(datePicker.getValue(), localTime)));
+        binder.forField(startTime).bind(e -> e.getStartTime().toLocalTime(), (e, localTime) -> e.setStartTime(LocalDateTime.of(datePicker.getValue() ,localTime)));
+        binder.forField(endTime).bind(e -> e.getEndTime().toLocalTime(), (e, localTime) -> e.setEndTime(LocalDateTime.of(datePicker.getValue() ,localTime)));
 
         binder.forField(descriptionField).bind(Event::getDescription, Event::setDescription);
         editor.setBinder(binder);
@@ -318,13 +362,13 @@ public class MapView
     private Button createEditButton(Event event) {
         Button editButton = new Button("Edit");
         editButton.addClickListener(e -> {
-            if (editor.isOpen()) {
+            if(editor.isOpen()) {
                 editor.cancel();
             }
             binder.setBean(event);
             editor.editItem(event);
         });
-        if (event.getType().equals(EventType.EXTERNAL)) {
+        if(event.getType().equals(EventType.EXTERNAL)) {
             return null;
 
         }
@@ -332,12 +376,12 @@ public class MapView
     }
 
     private VerticalLayout createActionsLayout() {
-        Button saveButton = new Button(getTranslation("app.save"), e -> {
+        Button saveButton = new Button("Save", e -> {
             eventService.save(editor.getItem());
             editor.save();
             editor.cancel();
         });
-        Button cancelButton = new Button(getTranslation("app.cancel"), e -> editor.cancel());
+        Button cancelButton = new Button("Cancel", e -> editor.cancel());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         return new VerticalLayout(saveButton, cancelButton);
     }
@@ -350,17 +394,25 @@ public class MapView
             Event targetEvent = e.getDropTargetItem().orElse(null);
             GridDropLocation dropLocation = e.getDropLocation();
 
-            if (targetEvent == null || draggedItem.equals(targetEvent)) {
+            if(targetEvent == null || draggedItem.equals(targetEvent)) {
                 return;
             }
 
             dataView.removeItem(draggedItem);
 
-            if (dropLocation == GridDropLocation.BELOW) {
+            if(dropLocation == GridDropLocation.BELOW) {
                 dataView.addItemAfter(draggedItem, targetEvent);
-            } else {
+            }
+            else {
                 dataView.addItemBefore(draggedItem, targetEvent);
             }
         });
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    class Filter {
+        private LocalDate time;
     }
 }
