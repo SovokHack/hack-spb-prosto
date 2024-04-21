@@ -1,6 +1,7 @@
 package com.hack.hackathon.service;
 
 import com.hack.hackathon.config.PeterburgConfig;
+import com.hack.hackathon.dto.WiFiDtoList;
 import com.hack.hackathon.dto.WifiDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -21,11 +22,10 @@ public class WifiExternalService {
     private final PeterburgConfig peterburgConfig;
 
     public List<WifiDto> getWifiInfo(int page, int size) {
-        ResponseEntity<Page<WifiDto>> response = restTemplate.exchange(peterburgConfig.getWifiUrl(), HttpMethod.GET, null, new ParameterizedTypeReference<Page<WifiDto>>() {
-                },
+        ResponseEntity<WiFiDtoList> response = restTemplate.getForEntity(peterburgConfig.getWifiUrl(), WiFiDtoList.class,
                 Map.of("page", page,
                         "size", size)
         );
-        return response.getBody().getContent();
+        return response.getBody().getResults();
     }
 }
