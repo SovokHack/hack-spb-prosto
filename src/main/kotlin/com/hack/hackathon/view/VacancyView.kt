@@ -8,6 +8,7 @@ import com.hack.hackathon.service.SpecializationService
 import com.hack.hackathon.service.VacancyService
 import com.vaadin.flow.component.combobox.ComboBox
 import com.vaadin.flow.component.grid.Grid
+import com.vaadin.flow.component.orderedlayout.FlexComponent
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout
 import com.vaadin.flow.component.orderedlayout.VerticalLayout
 import com.vaadin.flow.component.page.WebStorage
@@ -54,9 +55,11 @@ class VacancyView(
             WebStorage.setItem("employmentTypeFilter", it.value?.name)
             setItems()
         }
+        grid.setHeight("90vh")
         grid.addComponentColumn { VacancyCardView(it) }.setWidth("90vw")
         val verticalLayout = VerticalLayout()
         val layout = HorizontalLayout(employmentTypeFilter, scheduleFilter, experienceFilter)
+        layout.alignItems = FlexComponent.Alignment.CENTER
         verticalLayout.add(layout, grid)
         add(verticalLayout)
 
