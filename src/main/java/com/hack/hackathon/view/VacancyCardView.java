@@ -14,26 +14,22 @@ public class VacancyCardView extends VerticalLayout {
 
     public VacancyCardView(JSONObject json) {
         this.json = json;
-        //json.getJSONObject("name").getString("")
+         setWidthFull();
         //Имя должности
-        TextField jobName = new TextField(json.getString("name"));
+        TextField jobName = new TextField("Имя должности");
         jobName.setReadOnly(true);
-        jobName.setLabel("Название должности");
+        jobName.setValue(json.getString("name"));
 
-        //Оисание должности
-        TextField jobDescription = new TextField(json.getJSONObject("organization").getString("description"));
-        jobDescription.setReadOnly(true);
-        jobDescription.setLabel("Оисание должности");
 
         //Название компании
-        TextField companyName = new TextField(json.getJSONObject("organization").getString("name"));
+        TextField companyName = new TextField("Название компании");
         companyName.setReadOnly(true);
-        companyName.setLabel("Название компании");
+        companyName.setValue(json.getJSONObject("organization").getString("name"));
 
         //Тип занятости
-        TextField employmentType = new TextField(json.getJSONObject("employmentType").getString("name"));
+        TextField employmentType = new TextField("Тип занятости");
         employmentType.setReadOnly(true);
-        employmentType.setLabel("Тип занятости");
+        employmentType.setValue(json.getJSONObject("employmentType").getString("name"));
 
         //График
         JSONArray scheduleArray = json.getJSONArray("schedule");
@@ -45,45 +41,45 @@ public class VacancyCardView extends VerticalLayout {
             scheduleName = "No data"; // Или другое значение по умолчанию
         }
 
-        TextField scheduleField = new TextField(scheduleName);
-        scheduleField.setLabel("График");
+        TextField scheduleField = new TextField("График");
+        scheduleField.setValue(scheduleName);
         scheduleField.setReadOnly(true);
 
 
         //Требуемый опыт
-        TextField experience = new TextField(json.getJSONObject("experience").getString("name"));
+        TextField experience = new TextField("Требуемый опыт");
         experience.setReadOnly(true);
-        experience.setLabel("Требуемый опыт");
+        experience.setValue(json.getJSONObject("experience").getString("name"));
 
 
         //Требуемый уровень образования
-        TextField education = new TextField(json.getJSONObject("educationLevel").getString("name"));
+        TextField education = new TextField("Требуемый уровень образования");
         education.setReadOnly(true);
-        education.setLabel("Требуемый уровень образования");
-        add(jobName, jobDescription, companyName, employmentType, scheduleField);
+        education.setValue(json.getJSONObject("educationLevel").getString("name"));
+        add(jobName, companyName, employmentType, scheduleField);
+
         if (!json.isNull("salaryFrom")) {
             //Минимальная з/п
-            TextField salaryFrom = new TextField(String.valueOf(json.getInt("salaryFrom")));
+            TextField salaryFrom = new TextField("Минимальная з/п");
             salaryFrom.setReadOnly(true);
-            salaryFrom.setLabel("Минимальная з/п");
+            salaryFrom.setValue(String.valueOf(json.getInt("salaryFrom")));
             add(salaryFrom);
         }
 
         //Максимальная з/п
-        if (!json.isNull("salaryUpTo")) {
-            TextField salaryUpTo = new TextField(String.valueOf(json.getInt("salaryUpTo")));
+        if (!json.isNull("Максимальная з/п")) {
+            TextField salaryUpTo = new TextField();
             salaryUpTo.setReadOnly(true);
-            salaryUpTo.setLabel("Максимальная з/п");
+            salaryUpTo.setValue(String.valueOf(json.getInt("salaryUpTo")));
             add(salaryUpTo);
         }
 
         //Ссылка на hh.ru
-        TextField url = new TextField(json.getString("hhUrl"));
+        TextField url = new TextField("Ссылка на hh.ru");
         url.setReadOnly(true);
-        url.setLabel("Cсылка на hh.ru");
+        url.setValue(json.getString("hhUrl"));
         add(url);
 
-
-
     }
+
 }
