@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Embeddable
-@Data
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,4 +20,28 @@ public class Coordinate {
     private Float y;
     @Column(name = "address")
     private String address;
+
+    public Float getX() {
+        return x;
+    }
+
+    public void setX(Float x) {
+        this.x = x;
+    }
+
+    public Float getY() {
+        return y;
+    }
+
+    public void setY(Float y) {
+        this.y = y;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }

@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import java.awt.*;
 
 
-public class VacancyCardView extends VerticalLayout{
+public class VacancyCardView extends VerticalLayout {
     private final JSONObject json;
     public VacancyCardView(JSONObject json) {
         this.json = json;
